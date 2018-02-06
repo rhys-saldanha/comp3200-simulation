@@ -2,8 +2,8 @@ from simulation import Simulation
 from type import Type
 
 if __name__ == "__main__":
-    a = Type("A", 100.0, 1.0, 0.0)
-    b = Type("B", 200.0, 0.0, 0.0)
-    a.add_mutations(0.0, (b, 1.0))
+    a = Type("A", 400.0, 1.0, 0.1)
+    b = Type("B", 0, 1.0, 0.1)
+    a.add_mutations(0.1, (b, 0.9))
     sim = Simulation(a, b)
-    sim.run(3.0)
+    sim.run(20.0)

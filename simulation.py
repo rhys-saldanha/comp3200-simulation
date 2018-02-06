@@ -1,4 +1,5 @@
 from time import time
+from typing import List
 
 import numpy as np
 import pylab as plt
@@ -8,9 +9,11 @@ from type import Type
 
 class Simulation:
     def __init__(self, *types: Type):
-        self.operations = (+1, -1)
-        self.types = types
+        self.types: List[Type] = types
         self.time = 0
+        self._update_values()
+        # Set population maximum equal to initial population
+        self.pop_max: int = self.size
 
     def run(self, t: float) -> None:
         print("Running till time {}".format(t))
@@ -27,30 +30,61 @@ class Simulation:
         self.plot(t)
 
     def _cycle(self):
-        self.time += self._time_nothing()
-        e, op = self._find_n_rate(np.random.uniform(high=self._rates_total()))
-        e.update(op, self.time)
-        for e in self.types:
-            e.update(0, self.time)
+        # Move time forwards
+        self.time += self._time_nothing
+        # Find type with operation event
+        t, op = self._choose_event_any()
 
-    def _time_nothing(self) -> int:
+        # If birth and we are at our max pop, we need a death
+        if op == 1 and self.size == self.pop_max:
+            d = self._choose_event('death')
+            # Only update with death if types are different, otherwise they cancel
+            if d != t:
+                d.update(-1, self.time)
+            else:
+                # Update with nothing to prevent birth
+                d.update(0, self.time)
+
+        # Update initial type choice with operation
+        # May result in mutation and operation to different type
+        t.update(op, self.time)
+        for t in self.types:
+            t.update(0, self.time)
+
+        self._update_values()
+
+    @property
+    def _time_nothing(self) -> float:
         r = np.random.uniform()
-        return -1.0 * np.log(r) / self._rates_total()
+        return -1.0 * np.log(r) / self.probability_total
 
-    def _rates_total(self) -> float:
-        return sum(map(lambda e: e.rates_total(), self.types))
+    def _update_values(self):
+        # Reduce the number of computations to only when values have been changed
+        self.probability = {'birth': sum(map(lambda t: t.probability('birth'), self.types)),
+                            'death': sum(map(lambda t: t.probability('death'), self.types))}
+        self.probability_total = sum(self.probability.values())
+        self.size = sum(map(lambda t: t.size, self.types))
 
-    def _find_n_rate(self, n):
-        t = 0
+    def _choose_event_any(self) -> (Type, int):
+        n = np.random.uniform(high=self.probability_total)
+
+        if n > self.probability['birth']:
+            return self._choose_event('death', n - self.probability['birth']), -1
+        return self._choose_event('birth', n), +1
+
+    def _choose_event(self, s: str, n: float = None) -> Type:
+        if n is None:
+            n = np.random.uniform(high=self.probability[s])
+
+        t = 0.0
         # Loop through types
         for e in self.types:
-            # Zip together birth/death rates with the operation they represent
-            for r, op in zip(e.rates, self.operations):
-                # Add to total
-                t += r * e.size
-                # If argument is within the new total, we've found the operation it applies to
-                if n < t:
-                    return e, op
+            t += e.probability(s)
+            # If argument is within the new total, we've found the operation it applies to
+            if n < t:
+                return e
+        # Argument was outside of possible values
+        # raise ValueError
 
     def plot(self, tmax: float, data=True, stats=True):
         if data:
