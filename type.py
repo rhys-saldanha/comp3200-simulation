@@ -6,7 +6,7 @@ import numpy as np
 class Type:
     mutations: List[Tuple['Type', float]]
 
-    def __init__(self, name: str, initial_size: float, birth_rate: float = 1.0, death_rate: float = 1.0):
+    def __init__(self, name: str, initial_size: int, birth_rate: float = 1.0, death_rate: float = 1.0):
         if initial_size < 0:
             raise ValueError('Initial size must be positive')
         if birth_rate < 0:
