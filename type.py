@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import numpy as np
+from deprecated import deprecated
 
 
 class Type:
@@ -34,7 +35,7 @@ class Type:
 
         self.mutations = list()
         # Initialise with no mutation options except self
-        self.add_mutations(1.0)
+        self.add_mutation(self, 1.0)
 
         self.update(0, 0.0, False)
 
@@ -65,6 +66,7 @@ class Type:
     def probability(self, s) -> float:
         return self.rates[s] * self.size
 
+    @deprecated
     def add_mutations(self, no_mutation: float, *args: Tuple['Type', float]):
         """
         Add mutation targets to a type of individual with probabilities. If the sum of probabilities
@@ -77,6 +79,13 @@ class Type:
         no_mutation = no_mutation / s
         self.mutations: List[Tuple['Type', float]] = [(x[0], x[1] / s) for x in args]
         self.mutations.append((self, no_mutation))
+
+    def add_mutation(self, target, probability):
+        self.mutations.append((target, probability))
+        total = sum([x[1] for x in self.mutations])
+        # if total != 1:
+        #     # Normalise
+        #     self.mutations = list(map(lambda x: (x[0], x[1] / total), self.mutations))
 
     def find_mutation(self, time: float):
         n = np.random.uniform()
