@@ -35,7 +35,7 @@ class Type:
 
         self.mutations = list()
         # Initialise with no mutation options except self
-        self.add_mutation(self, 1.0)
+        # self.add_mutation(self, 1.0)
 
         self.update(0, 0.0, False)
 
