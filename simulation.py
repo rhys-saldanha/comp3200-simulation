@@ -8,12 +8,12 @@ from type import Type
 
 
 class Simulation:
-    def __init__(self, *types: Type):
+    def __init__(self, *types: Type, **kwargs):
         self.types: List[Type] = types
         self.time = 0
         self._update_values()
         # Set population maximum equal to initial population
-        self.pop_max: int = self.size
+        self.pop_max: int = kwargs.get('max', self.size)
 
     def run(self, t: float) -> None:
         print("Running till time {}".format(t))
@@ -35,8 +35,8 @@ class Simulation:
         # Find type with operation event
         t, op = self._choose_event_any()
 
-        # If birth and we are at our max pop, we need a death
-        if op == 1 and self.size == self.pop_max:
+        # If birth and we are over the max pop, we need a death
+        if op == 1 and self.size >= self.pop_max:
             d = self._choose_event('death')
             # Only update with death if types are different, otherwise they cancel
             if d != t:
@@ -45,9 +45,16 @@ class Simulation:
                 # Update with nothing to prevent birth
                 d.update(0, self.time)
 
-        # Update initial type choice with operation
-        # May result in mutation and operation to different type
-        t.update(op, self.time)
+        # # If birth and we are over the max pop, do nothing
+        # if op == 1 and self.size >= self.pop_max:
+        #     t.update(0, self.time)
+
+        # Check we have a type to update
+        # as all types may have died out
+        if t is not None:
+            # Update initial type choice with operation
+            # May result in mutation and operation to different type
+            t.update(op, self.time)
         for t in self.types:
             t.update(0, self.time)
 
@@ -55,8 +62,7 @@ class Simulation:
 
     @property
     def _time_nothing(self) -> float:
-        r = np.random.uniform()
-        return -1.0 * np.log(r) / self.probability_total
+        return -1.0 * np.log(np.random.uniform()) / self.probability_total
 
     def _update_values(self):
         # Reduce the number of computations to only when values have been changed
@@ -66,6 +72,9 @@ class Simulation:
         self.size = sum(map(lambda t: t.size, self.types))
 
     def _choose_event_any(self) -> (Type, int):
+        if self.probability_total == 0:
+            # All types have died out
+            return None, 0
         n = np.random.uniform(high=self.probability_total)
 
         if n > self.probability['birth']:
