@@ -51,13 +51,13 @@ class Type:
                 self.time = time
                 self.record()
 
-                self.n += 1
-                self.mean, self.sum = self._calc_mean(self.sum, self.size, self.n)
-                self.var, self.sumsq = self._calc_var(self.sumsq, self.mean, self.size, self.n)
-
-                self.record_stats()
+                # self.record_stats()
 
     def record(self):
+        self.n += 1
+        self.mean, self.sum = self._calc_mean(self.sum, self.size, self.n)
+        self.var, self.sumsq = self._calc_var(self.sumsq, self.mean, self.size, self.n)
+
         self.history.append((self.size, self.time))
 
     def record_stats(self):
