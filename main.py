@@ -1,5 +1,6 @@
 from simulation import Simulation
 from type import Type
+from data_plot import Plotter
 
 if __name__ == '__main__':
     # === Types === #
@@ -20,3 +21,7 @@ if __name__ == '__main__':
     sim = Simulation(a, b, c, max=200)
 
     sim.run(100.0)
+
+    plt = Plotter()
+
+    plt.plot(sim)
