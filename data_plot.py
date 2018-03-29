@@ -22,7 +22,7 @@ class Plotter:
         legend_list = []
         for e in types:
             v, t = list(zip(*e.history))
-            plt.scatter(t, v, marker='x')
+            plt.scatter(t, v, marker='.')
             legend_list.append("{}: size".format(e.full_name))
         plt.legend(legend_list, loc='upper left')
         plt.xlim(xmin=0.0, xmax=tmax)
