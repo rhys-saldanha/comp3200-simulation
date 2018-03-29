@@ -24,4 +24,4 @@ if __name__ == '__main__':
 
     plt = Plotter()
 
-    plt.plot(sim)
+    plt.plot(sim.get_types, sim.get_tmax)
