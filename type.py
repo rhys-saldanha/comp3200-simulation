@@ -81,7 +81,8 @@ class Type:
         self.mutations.append((self, no_mutation))
 
     def add_mutation(self, target, probability):
-        self.mutations.append((target, probability))
+        if len(self.mutations) == 0 or target not in list(zip(*self.mutations))[0]:
+            self.mutations.append((target, probability))
         total = sum([x[1] for x in self.mutations])
         # if total != 1:
         #     # Normalise
@@ -101,6 +102,9 @@ class Type:
 
     def __eq__(self, other):
         return self.name == other.name
+
+    def __str__(self):
+        return '{} ({},{}) [{}]'.format(self.name, *self.rates.values(), self.size)
 
     @staticmethod
     def _get_sizes(d: List[Tuple[float, float]]) -> List[float]:
