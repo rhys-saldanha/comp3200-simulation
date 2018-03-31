@@ -1,9 +1,9 @@
-from collections import namedtuple
 import itertools
-from typing import List, Tuple, Mapping, Iterable, Dict
+from collections import namedtuple
+from typing import List, Tuple, Dict
 
-from type import Type
 from simulation import Simulation
+from type import Type
 
 
 class ParameterError(Exception):
