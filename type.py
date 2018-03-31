@@ -34,6 +34,7 @@ class Type:
         self.n = 0
 
         self.mutations = list()
+        self.mutation_total = 0.0
         # Initialise with no mutation options except self
         # self.add_mutation(self, 1.0)
 
@@ -83,13 +84,13 @@ class Type:
     def add_mutation(self, target, probability):
         if len(self.mutations) == 0 or target not in list(zip(*self.mutations))[0]:
             self.mutations.append((target, probability))
-        total = sum([x[1] for x in self.mutations])
+        self.mutation_total = sum([x[1] for x in self.mutations])
         # if total != 1:
         #     # Normalise
         #     self.mutations = list(map(lambda x: (x[0], x[1] / total), self.mutations))
 
     def find_mutation(self, time: float):
-        n = np.random.uniform()
+        n = np.random.uniform(high=self.mutation_total)
         t = 0
         # Loop through mutations
         for e, r in self.mutations:
