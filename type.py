@@ -1,7 +1,14 @@
+from enum import Enum
 from typing import List, Tuple
 
 import numpy as np
 from deprecated import deprecated
+
+
+class Event(Enum):
+    NOTHING = 0
+    BIRTH = 1
+    DEATH = -1
 
 
 class Type:
@@ -18,7 +25,7 @@ class Type:
             raise ValueError('Death rate must be non-zero')
 
         self.name = name
-        self.rates = {'birth': birth_rate, 'death': death_rate}
+        self.rates = {Event.BIRTH: birth_rate, Event.DEATH: death_rate}
         self.full_name = "{}({},{})".format(self.name, *self.rates.values())
 
         self.time = -1.0
@@ -38,17 +45,17 @@ class Type:
         # Initialise with no mutation options except self
         # self.add_mutation(self, 1.0)
 
-        self.update(0, 0.0, False)
+        self.update(Event.NOTHING, 0.0, False)
 
-    def update(self, op: int, time: float, mutate: bool = True):
+    def update(self, op: Event, time: float, mutate: bool = True):
         # Check that you haven't already been updated for this time
         if self.time != time:
             # Check that you're allowed to mutate and you're a birth update
-            if mutate and op == 1:
+            if mutate and op == Event.BIRTH:
                 self.find_mutation(time)
             else:
                 # Otherwise update your own values
-                self.size += op
+                self.size += op.value
                 self.time = time
                 self.record()
 
@@ -64,7 +71,7 @@ class Type:
     def record_stats(self):
         self.stats_history.append((self.mean, self.var, self.time))
 
-    def probability(self, s) -> float:
+    def probability(self, s: Event) -> float:
         return self.rates[s] * self.size
 
     @deprecated
@@ -98,7 +105,7 @@ class Type:
             # If argument is within the new total, we've found the mutation it applies to
             if n < t:
                 # A mutation event cannot itself mutate
-                e.update(+1, time, False)
+                e.update(Event.BIRTH, time, False)
                 break
 
     def __eq__(self, other):

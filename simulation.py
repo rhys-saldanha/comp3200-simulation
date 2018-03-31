@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-from type import Type
+from type import Type, Event
 
 
 class Simulation:
@@ -55,14 +55,14 @@ class Simulation:
         t, op = self.__choose_event_any()
 
         # If birth and we are over the max pop, we need a death
-        if op == 1 and self.size >= self.__pop_max:
-            d = self.__choose_event('death')
+        if op == Event.BIRTH and self.size >= self.__pop_max:
+            d = self.__choose_event(Event.DEATH)
             # Only update with death if types are different, otherwise they cancel
             if d != t:
-                d.update(-1, self.__time)
+                d.update(Event.DEATH, self.__time)
             else:
                 # Update with nothing to prevent birth
-                d.update(0, self.__time)
+                d.update(Event.NOTHING, self.__time)
 
         # # If birth and we are over the max pop, do nothing
         # if op == 1 and self.size >= self.pop_max:
@@ -75,7 +75,7 @@ class Simulation:
             # May result in mutation and operation to different type
             t.update(op, self.__time)
         for t in self.__types:
-            t.update(0, self.__time)
+            t.update(Event.NOTHING, self.__time)
 
         self.__update_values()
 
@@ -85,22 +85,22 @@ class Simulation:
 
     def __update_values(self):
         # Reduce the number of computations to only when values have been changed
-        self.probability = {'birth': sum(map(lambda t: t.probability('birth'), self.__types)),
-                            'death': sum(map(lambda t: t.probability('death'), self.__types))}
+        self.probability = {Event.BIRTH: sum(map(lambda t: t.probability(Event.BIRTH), self.__types)),
+                            Event.DEATH: sum(map(lambda t: t.probability(Event.DEATH), self.__types))}
         self.probability_total = sum(self.probability.values())
         self.size = sum(map(lambda t: t.size, self.__types))
 
-    def __choose_event_any(self) -> (Type, int):
+    def __choose_event_any(self) -> (Type, Event):
         if self.probability_total == 0:
             # All types have died out
-            return None, 0
+            return None, Event.NOTHING
         n = np.random.uniform(high=self.probability_total)
 
-        if n > self.probability['birth']:
-            return self.__choose_event('death', n - self.probability['birth']), -1
-        return self.__choose_event('birth', n), +1
+        if n < self.probability[Event.BIRTH]:
+            return self.__choose_event(Event.BIRTH, n), Event.BIRTH
+        return self.__choose_event(Event.DEATH, n - self.probability[Event.BIRTH]), Event.DEATH
 
-    def __choose_event(self, s: str, n: float = None) -> Type:
+    def __choose_event(self, s: Event, n: float = None) -> Type:
         if n is None:
             n = np.random.uniform(high=self.probability[s])
 
