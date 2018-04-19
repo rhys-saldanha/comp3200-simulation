@@ -57,18 +57,14 @@ class Type:
                 # Otherwise update your own values
                 self.size += op.value
                 self.time = time
-                self.record()
+                self.history.append((self.size, self.time))
 
                 # self.record_stats()
 
-    def record(self):
+    def record_stats(self):
         self.n += 1
         self.mean, self.sum = self._calc_mean(self.sum, self.size, self.n)
         self.var, self.sumsq = self._calc_var(self.sumsq, self.mean, self.size, self.n)
-
-        self.history.append((self.size, self.time))
-
-    def record_stats(self):
         self.stats_history.append((self.mean, self.var, self.time))
 
     def probability(self, s: Event) -> float:
@@ -91,10 +87,18 @@ class Type:
     def add_mutation(self, target, probability):
         if len(self.mutations) == 0 or target not in list(zip(*self.mutations))[0]:
             self.mutations.append((target, probability))
-        self.mutation_total = sum([x[1] for x in self.mutations])
+        self.set_mutation_total()
         # if total != 1:
         #     # Normalise
         #     self.mutations = list(map(lambda x: (x[0], x[1] / total), self.mutations))
+
+    def add_self_mutation(self):
+        self.mutations = [m for m in self.mutations if m[0] != self]
+        self.mutations.append((self, 1 - sum([m[1] for m in self.mutations])))
+        self.set_mutation_total()
+
+    def set_mutation_total(self):
+        self.mutation_total = sum([m[1] for m in self.mutations])
 
     def find_mutation(self, time: float):
         n = np.random.uniform(high=self.mutation_total)
@@ -106,17 +110,23 @@ class Type:
             if n < t:
                 # A mutation event cannot itself mutate
                 e.update(Event.BIRTH, time, False)
-                break
+                return
+        # self.update(Event.BIRTH, time, False)
+
+
+    @property
+    def get_sizes(self) -> List[float]:
+        return list(list(zip(*self.history))[0])
+
+    @property
+    def get_times(self) -> List[float]:
+        return list(list(zip(*self.history))[1])
 
     def __eq__(self, other):
         return self.name == other.name
 
     def __str__(self):
         return '{} ({},{})'.format(self.name, *self.rates.values(), self.size)
-
-    @staticmethod
-    def _get_sizes(d: List[Tuple[float, float]]) -> List[float]:
-        return list(list(zip(*d))[0])
 
     @staticmethod
     def _calc_mean(sum, size, n):

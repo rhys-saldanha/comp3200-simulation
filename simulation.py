@@ -22,9 +22,11 @@ class Simulation:
         """
         self.__types: List[Type] = types
         self.__time = 0
+        # self.__history = list()
         self.__update_values()
         # Set population maximum equal to initial population
-        self.__pop_max: int = kwargs.get('max', self.size)
+        self.__pop_max: int = kwargs.get('max', self.__size)
+        print(self.__pop_max)
         self.__tmax = 0
 
     def run(self, t: float) -> None:
@@ -55,7 +57,7 @@ class Simulation:
         t, op = self.__choose_event_any()
 
         # If birth and we are over the max pop, we need a death
-        if op == Event.BIRTH and self.size >= self.__pop_max:
+        if op == Event.BIRTH and self.__size >= self.__pop_max:
             d = self.__choose_event(Event.DEATH)
             # Only update with death if types are different, otherwise they cancel
             if d != t:
@@ -88,7 +90,8 @@ class Simulation:
         self.probability = {Event.BIRTH: sum(map(lambda t: t.probability(Event.BIRTH), self.__types)),
                             Event.DEATH: sum(map(lambda t: t.probability(Event.DEATH), self.__types))}
         self.probability_total = sum(self.probability.values())
-        self.size = sum(map(lambda t: t.size, self.__types))
+        self.__size = sum(map(lambda t: t.size, self.__types))
+        # self.__history.append((self.__time, self.__size))
 
     def __choose_event_any(self) -> (Type, Event):
         if self.probability_total == 0:
@@ -122,3 +125,7 @@ class Simulation:
     @property
     def get_tmax(self):
         return self.__tmax
+
+    @property
+    def get_size_max(self):
+        return self.__pop_max

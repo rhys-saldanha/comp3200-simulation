@@ -1,6 +1,6 @@
 import itertools
 from collections import namedtuple
-from typing import List, Tuple, Dict
+from typing import List, Set, Tuple, Dict
 
 from simulation import Simulation
 from type import Type
@@ -45,30 +45,35 @@ class Generator:
             types[seq] = Type(''.join(seq), wildtype_size if seq == wildtype else 0,
                               *rates.get(seq, default_rate))
 
-        sources = [wildtype]
-        for i in range(len(wildtype)):
+        sources = {wildtype}
+        used_sources = set()
+        for i in range(len(wildtype) + 1):
             for source in sources:
                 source_type = types[source]
-                source_type.add_mutation(source_type, mutation_rates.get(Generator.Mutation(source, source),
-                                                                         1.0 - default_mutation_rate))
+                # source_type.add_mutation(source_type, mutation_rates.get(Generator.Mutation(source, source),
+                #                                                          1.0 - default_mutation_rate))
 
                 targets = Generator.__partial_match(source, all_seq)
 
                 for target in targets:
                     target_type = types[target]
 
-                    target_type.add_mutation(target_type, mutation_rates.get(Generator.Mutation(target, target),
-                                                                             1.0 - default_mutation_rate))
+                    # target_type.add_mutation(target_type, mutation_rates.get(Generator.Mutation(target, target),
+                    #                                                          1.0 - default_mutation_rate))
 
                     source_type.add_mutation(target_type, mutation_rates.get(Generator.Mutation(source, target),
                                                                              default_mutation_rate))
 
                     target_type.add_mutation(source_type, mutation_rates.get(Generator.Mutation(target, source),
                                                                              default_mutation_rate))
-            sources = Generator.__partial_match_list(sources, all_seq)
+            used_sources |= sources
+            sources = Generator.__partial_match_list(sources, all_seq) - used_sources
 
-        # print(list(map(lambda t: str(t), types.values())))
-        # print(list(map(lambda t: str(t.mutations), types.values())))
+        for t in types.values():
+            t.add_self_mutation()
+
+        print(list(map(lambda t: str(t), types.values())))
+        print(list(map(lambda t: str(t.mutations), types.values())))
 
         return Simulation(*types.values(), max=size)
 
@@ -77,15 +82,14 @@ class Generator:
         return list(itertools.product(*zip(wildtype, mutated)))
 
     @staticmethod
-    def __partial_match_list(sources, targets, d=1) -> List:
+    def __partial_match_list(sources, targets, d=1) -> Set:
         # partial match for every source, chain together results, remove repeats
-        return list(
-            set(itertools.chain.from_iterable(map(lambda x: Generator.__partial_match(x, targets, d), sources))))
+        return set(itertools.chain.from_iterable(map(lambda x: Generator.__partial_match(x, targets, d), sources)))
 
     @staticmethod
-    def __partial_match(source, targets, d=1) -> List:
+    def __partial_match(source, targets, d=1) -> Set:
         # Uses set symmetric difference
         source = set(source)
         # 1 difference gives 2 options
         d *= 2
-        return list(filter(lambda x: len(set(x) ^ source) == d, targets))
+        return set(filter(lambda x: len(set(x) ^ source) == d, targets))

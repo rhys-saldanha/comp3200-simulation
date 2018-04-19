@@ -1,14 +1,15 @@
 from typing import List
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 from deprecated import deprecated
 
 from type import Type
 
 
-class Plotter:
+class LinePlot:
     @deprecated
-    def plot(self, types: List[Type], tmax: int):
+    def plot(self, types: List[Type], tmax: int, size_max: int):
         """
         Types do not have a statistics history anymore.
         This kind of statistics graph was not useful for analysis.
@@ -19,29 +20,31 @@ class Plotter:
         plt.title("Plot of type size over time")
         plt.xlabel("time")
         plt.ylabel("Number of type")
+
         legend_list = []
         for e in types:
             v, t = list(zip(*e.history))
             plt.scatter(t, v, marker='.')
             legend_list.append("{}: size".format(e.full_name))
         plt.legend(legend_list, loc='upper left')
-        plt.xlim(xmin=0.0, xmax=tmax)
-        plt.ylim(ymin=0)
+        plt.ylim((0, size_max))
+        plt.xlim((0, tmax))
 
-        # plt.title("Plot of type statistics over time")
-        # plt.xlabel("time")
-        # plt.ylabel("Number of type")
-        # legend_list = []
-        # cmap = plt.get_cmap('tab10')
-        # for i, e in enumerate(simulation.__types):
-        #     m, v, t = list(zip(*e.stats_history))
-        #     v = list(map(lambda x: np.sqrt(x), v))
-        #     plt.plot(t, m, linestyle="--", c=cmap(i))
-        #     plt.plot(t, v, linestyle=":", c=cmap(i))
-        #     legend_list.append("{}: mean".format(e.full_name))
-        #     legend_list.append("{}: standard deviation".format(e.full_name))
-        # plt.legend(legend_list, loc='upper left')
-        # plt.xlim(xmin=0.0, xmax=simulation.__tmax)
-        # plt.ylim(ymin=0)
 
-        plt.show()
+class StackedPlot:
+    def plot(self, types: List[Type], tmax: int, size_max: int):
+        plt.xlabel("time")
+        plt.ylabel("Number of type")
+
+        times = types[0].get_times
+        histories = list(map(lambda t: t.get_sizes, types))
+        labels = list(map(str, types))
+
+        plt.stackplot(times, histories, labels=labels)
+        plt.legend(loc='lower right')
+        plt.ylim((0, size_max))
+        plt.xlim((0, tmax))
+
+
+def show():
+    plt.show()
