@@ -30,6 +30,8 @@ class LinePlot:
         plt.ylim((0, size_max))
         plt.xlim((0, tmax))
 
+        plt.show()
+
 
 class StackedPlot:
     def plot(self, types: List[Type], tmax: int, size_max: int):
@@ -45,6 +47,4 @@ class StackedPlot:
         plt.ylim((0, size_max))
         plt.xlim((0, tmax))
 
-
-def show():
-    plt.show()
+        plt.show()

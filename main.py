@@ -38,8 +38,6 @@ def one_type_exp():
 if __name__ == '__main__':
     mutations()
 
-    data_plot.show()
-
 # mutation = Generator.Mutation
 # mutation_rates = {
 #     mutation(('a', 'b'), ('a', 'b')): 0.998,
