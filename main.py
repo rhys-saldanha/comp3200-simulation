@@ -13,10 +13,9 @@ def mutations():
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
     sim.run(5.)
-    line = data_plot.LinePlot()
-    stack = data_plot.StackedPlot()
-    line.plot(sim.get_types, sim.get_tmax, sim.get_size_max)
-    stack.plot(sim.get_types, sim.get_tmax, sim.get_size_max)
+
+    data_plot.line_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
+    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
 
 
 def one_type_exp():
@@ -30,9 +29,8 @@ def one_type_exp():
     sim = Simulation(a, max=10000)
 
     sim.run(.3)
-    stack = data_plot.StackedPlot()
 
-    stack.plot(sim.get_types, sim.get_tmax, sim.get_size_max)
+    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
 
 
 if __name__ == '__main__':

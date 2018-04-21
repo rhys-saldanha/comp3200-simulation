@@ -6,45 +6,50 @@ from deprecated import deprecated
 
 from type import Type
 
-
-class LinePlot:
-    @deprecated
-    def plot(self, types: List[Type], tmax: int, size_max: int):
-        """
-        Types do not have a statistics history anymore.
-        This kind of statistics graph was not useful for analysis.
-
-        :param int tmax: maximum time of simulation
-        :param List[Type] types: list of types to plot
-        """
-        plt.title("Plot of type size over time")
-        plt.xlabel("time")
-        plt.ylabel("Number of type")
-
-        legend_list = []
-        for e in types:
-            v, t = list(zip(*e.history))
-            plt.scatter(t, v, marker='.')
-            legend_list.append("{}: size".format(e.full_name))
-        plt.legend(legend_list, loc='upper left')
-        plt.ylim((0, size_max))
-        plt.xlim((0, tmax))
-
-        plt.show()
+resolution = 1000
 
 
-class StackedPlot:
-    def plot(self, types: List[Type], tmax: int, size_max: int):
-        plt.xlabel("time")
-        plt.ylabel("Number of type")
+def line_plot(types: List[Type], tmax: int, size_max: int):
+    """
+    Types do not have a statistics history anymore.
+    This kind of statistics graph was not useful for analysis.
 
-        times = types[0].get_times
-        histories = list(map(lambda t: t.get_sizes, types))
-        labels = list(map(str, types))
+    :param int tmax: maximum time of simulation
+    :param List[Type] types: list of types to plot
+    """
+    plt.title("Plot of type size over time")
+    plt.xlabel("time")
+    plt.ylabel("Number of type")
 
-        plt.stackplot(times, histories, labels=labels)
-        plt.legend(loc='lower right')
-        plt.ylim((0, size_max))
-        plt.xlim((0, tmax))
+    num_points = len(types[0].history)
+    reduce = int(num_points / resolution)
 
-        plt.show()
+    legend_list = []
+    for e in types:
+        v, t = list(zip(*e.history[::reduce]))
+        plt.scatter(t, v, marker='.')
+        legend_list.append("{}".format(e.full_name))
+    plt.legend(legend_list, loc='upper left')
+    plt.ylim((0, size_max))
+    plt.xlim((0, tmax))
+
+    plt.show()
+
+
+def stacked_plot(types: List[Type], tmax: int, size_max: int):
+    plt.xlabel("time")
+    plt.ylabel("Number of type")
+
+    num_points = len(types[0].history)
+    reduce = int(num_points / resolution)
+
+    times = types[0].get_times[::reduce]
+    histories = list(map(lambda t: t.get_sizes[::reduce], types))
+    labels = list(map(str, types))
+
+    plt.stackplot(times, histories, labels=labels)
+    plt.legend(loc='lower right')
+    plt.ylim((0, size_max))
+    plt.xlim((0, tmax))
+
+    plt.show()
