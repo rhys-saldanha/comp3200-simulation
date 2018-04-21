@@ -127,5 +127,9 @@ class Simulation:
         return self.__tmax
 
     @property
-    def get_size_max(self):
+    def get_pop_max(self):
         return self.__pop_max
+
+    def clone(self):
+        cloned_types = [t.clone() for t in self.__types]
+        return Simulation(*cloned_types, max=self.__pop_max)

@@ -30,8 +30,7 @@ class Type:
 
         self.time = -1.0
         self.history = list()
-        self.size = initial_size
-        self.initial_size = initial_size
+        self.size = self.initial_size = initial_size
 
         self.stats_history = list()
         self.sum = 0.0
@@ -44,6 +43,9 @@ class Type:
         self.mutation_total = 0.0
         # Initialise with no mutation options except self
         # self.add_mutation(self, 1.0)
+
+        self.children = set()
+        self.parents = set()
 
         self.update(Event.NOTHING, 0.0, False)
 
@@ -113,7 +115,6 @@ class Type:
                 return
         # self.update(Event.BIRTH, time, False)
 
-
     @property
     def get_sizes(self) -> List[float]:
         return list(list(zip(*self.history))[0])
@@ -137,3 +138,12 @@ class Type:
     def _calc_var(sumsq, mean, size, n):
         sumsq += np.square(size)
         return (sumsq / n) - np.square(mean), sumsq
+
+    def add_child(self, c: 'Type'):
+        self.children.add(c)
+
+    def add_parent(self, p):
+        self.parents.add(p)
+
+    def clone(self):
+        return Type(self.name, self.initial_size, self.rates[Event.BIRTH], self.rates[Event.DEATH])
