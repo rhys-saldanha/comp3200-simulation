@@ -26,7 +26,6 @@ class Simulation:
         self.__update_values()
         # Set population maximum equal to initial population
         self.__pop_max: int = kwargs.get('max', self.__size)
-        print(self.__pop_max)
         self.__tmax = 0
 
     def run(self, t: float) -> None:
