@@ -3,8 +3,8 @@ from collections import namedtuple
 from functools import reduce
 from typing import List, Set, Tuple, Dict
 
-import networkx as nx
 import matplotlib.pyplot as plt
+import networkx as nx
 
 from data_plot import network
 from simulation import Simulation
@@ -61,34 +61,22 @@ class Generator:
                 types[source].pos = (i, s / len(sources))
 
                 targets = Generator.partial_match(wildtype, source, all_seq, i + 1) - used_sources
-                # print('source {}'.format(types[source]))
-                # print('targets {}'.format(targets))
 
                 for target in targets:
                     types[source].add_mutation(types[target], mutation_rates.get(Generator.Mutation(source, target),
                                                                                  default_mutation_rate))
 
-                    # print('target {}'.format(types[target]))
                     types[source].add_child(types[target])
                     types[target].add_parent(types[source])
 
                     types[target].add_mutation(types[source], mutation_rates.get(Generator.Mutation(target, source),
                                                                                  default_mutation_rate))
-            # print('sources {}'.format(sources))
+
             used_sources |= sources
-            # print('used sources {}'.format(used_sources))
             sources = Generator.partial_match_list(wildtype, sources, all_seq, i + 1) - used_sources
-            # print('new sources {}'.format(sources))
-            # print('--------')
-
-        # for t in types.values():
-        #     t.add_self_mutation()
-
-        # print(list(map(lambda t: str(t), types.values())))
-        # print(list(map(lambda t: str(t.mutations), types.values())))
 
         return Simulation(*types.values(), max=size, wildtype=types[wildtype],
-                          finals=list(map(lambda t: types[t], finals)))
+                          finals=[types[t] for t in finals])
 
     @staticmethod
     def all_seq(wildtype, *mutated) -> List:
