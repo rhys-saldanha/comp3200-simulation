@@ -1,21 +1,28 @@
 import data_plot
+import matplotlib.pyplot as plt
+import networkx as nx
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
 
 
 def mutations():
-    rates = {('a', 'b'): (10.0, 9.), ('A', 'b'): (10.0, 7.), ('a', 'B'): (10.0, 8.), ('A', 'B'): (10.0, 5.)}
+    rates = {tuple('abc'): (10.0, 9.), tuple('Abc'): (10.0, 7.), tuple('ABc'): (10.0, 6.), tuple('ABC'): (10.0, 5.)}
 
-    sim = Generator.parameters(('a', 'b'), ('A', 'B'), rates=rates, size=10000, wildtype_size=10000)
+    sim = Generator.parameters(tuple('abc'), tuple('ABC'), tuple('ABD'), rates=rates, size=10000, wildtype_size=10000,
+                               default_rate=(10.0, 9.))
 
     # for t in sim.get_types:
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
-    sim.run(5.)
+    sim.run(3.)
 
-    data_plot.line_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
-    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
+    data_plot.network_with_dominant(sim, nx)
+    plt.figure()
+    data_plot.line_plot(sim.get_types, sim.get_tmax, sim.get_pop_max, plt)
+    plt.figure()
+    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_pop_max, plt)
+    plt.show()
 
 
 def one_type_exp():
@@ -30,7 +37,8 @@ def one_type_exp():
 
     sim.run(.3)
 
-    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_size_max)
+    data_plot.stacked_plot(sim.get_types, sim.get_tmax, sim.get_pop_max, plt)
+    plt.show()
 
 
 if __name__ == '__main__':
