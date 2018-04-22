@@ -13,6 +13,7 @@ class Event(Enum):
 
 class Type:
     mutations: List[Tuple['Type', float]]
+    pos: Tuple[int, int]
 
     def __init__(self, name: str, initial_size: int, birth_rate: float = 1.0, death_rate: float = 1.0):
         if initial_size < 0:
@@ -30,7 +31,7 @@ class Type:
 
         self.time = -1.0
         self.history = list()
-        self.size = self.initial_size = initial_size
+        self.size = self.max_size = self.initial_size = initial_size
 
         self.stats_history = list()
         self.sum = 0.0
@@ -49,6 +50,10 @@ class Type:
 
         self.update(Event.NOTHING, 0.0, False)
 
+    def sim_init(self):
+        # Things to do once the type object is passed to the Simulation
+        self.add_self_mutation()
+
     def update(self, op: Event, time: float, mutate: bool = True):
         # Check that you haven't already been updated for this time
         if self.time != time:
@@ -58,6 +63,7 @@ class Type:
             else:
                 # Otherwise update your own values
                 self.size += op.value
+                self.max_size = max(self.size, self.max_size)
                 self.time = time
                 self.history.append((self.size, self.time))
 
@@ -103,7 +109,7 @@ class Type:
         self.mutation_total = sum([m[1] for m in self.mutations])
 
     def find_mutation(self, time: float):
-        n = np.random.uniform(high=self.mutation_total)
+        n = np.random.uniform()
         t = 0
         # Loop through mutations
         for e, r in self.mutations:
@@ -124,7 +130,10 @@ class Type:
         return list(list(zip(*self.history))[1])
 
     def __eq__(self, other):
-        return self.name == other.name
+        return type(other) is Type and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
 
     def __str__(self):
         return '{} ({},{})'.format(self.name, *self.rates.values(), self.size)
@@ -142,7 +151,7 @@ class Type:
     def add_child(self, c: 'Type'):
         self.children.add(c)
 
-    def add_parent(self, p):
+    def add_parent(self, p: 'Type'):
         self.parents.add(p)
 
     def clone(self):
