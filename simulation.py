@@ -26,7 +26,17 @@ class Simulation:
         self.__update_values()
         # Set population maximum equal to initial population
         self.__pop_max: int = kwargs.get('max', self.__size)
+
+        self.wildtype: Type = kwargs.get('wildtype', types[0])
+        self.finals: List[Type] = kwargs.get('finals', [types[-1]])
+
         self.__tmax = 0
+
+        self.init_types()
+
+    def init_types(self):
+        for t in self.__types:
+            t.sim_init()
 
     def run(self, t: float) -> None:
         """
@@ -52,7 +62,7 @@ class Simulation:
     def __cycle(self):
         # Move time forwards
         self.__time += self.__time_nothing
-        # Find type with operation event
+        # Find type and event
         t, op = self.__choose_event_any()
 
         # If birth and we are over the max pop, we need a death
@@ -61,22 +71,21 @@ class Simulation:
             # Only update with death if types are different, otherwise they cancel
             if d != t:
                 d.update(Event.DEATH, self.__time)
-            else:
-                # Update with nothing to prevent birth
-                d.update(Event.NOTHING, self.__time)
-
-        # # If birth and we are over the max pop, do nothing
-        # if op == 1 and self.size >= self.pop_max:
-        #     t.update(0, self.time)
+                t.update(Event.BIRTH, self.__time)
+            # Update with nothing happens in final for loop
 
         # Check we have a type to update
         # as all types may have died out
-        if t is not None:
+        elif t is not None:
             # Update initial type choice with operation
             # May result in mutation and operation to different type
             t.update(op, self.__time)
+
+        # TODO reset all values is __update_values() and calculate new ones in for loop
         for t in self.__types:
+            # TODO use update to get new size
             t.update(Event.NOTHING, self.__time)
+            # TODO get new probabilities for each type
 
         self.__update_values()
 
