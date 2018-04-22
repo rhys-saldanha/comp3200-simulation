@@ -5,3 +5,5 @@ seaborn
 pandas
 pylint
 Deprecated
+networkx
+snakeviz
