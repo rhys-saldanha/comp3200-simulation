@@ -59,7 +59,7 @@ def network_with_dominant(sim: Simulation, nx=nx) -> None:
 
     G.add_nodes_from(sim.get_types)
 
-    G.add_edges_from(list(itertools.chain(*[list(map(lambda c: (t, c), t.children)) for t in sim.get_types])))
+    G.add_edges_from(list(itertools.chain(*[[(t, c) for c in t.children] for t in sim.get_types])))
 
     pos = {}
 
@@ -85,7 +85,7 @@ def network(sim: Simulation, nx=nx):
 
     G.add_nodes_from(sim.get_types)
 
-    G.add_edges_from(list(itertools.chain(*[list(map(lambda c: (t, c), t.children)) for t in sim.get_types])))
+    G.add_edges_from(list(itertools.chain(*[[(t, c) for c in t.children] for t in sim.get_types])))
 
     pos = {}
 

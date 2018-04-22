@@ -95,10 +95,10 @@ class Simulation:
 
     def __update_values(self):
         # Reduce the number of computations to only when values have been changed
-        self.probability = {Event.BIRTH: sum(map(lambda t: t.probability(Event.BIRTH), self.__types)),
-                            Event.DEATH: sum(map(lambda t: t.probability(Event.DEATH), self.__types))}
+        self.probability = {Event.BIRTH: sum([t.probability(Event.BIRTH) for t in self.__types]),
+                            Event.DEATH: sum([t.probability(Event.DEATH) for t in self.__types])}
         self.probability_total = sum(self.probability.values())
-        self.__size = sum(map(lambda t: t.size, self.__types))
+        self.__size = sum([t.size for t in self.__types])
         # self.__history.append((self.__time, self.__size))
 
     def __choose_event_any(self) -> (Type, Event):
