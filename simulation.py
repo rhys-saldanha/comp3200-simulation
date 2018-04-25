@@ -125,16 +125,13 @@ class Simulation:
         # Argument was outside of possible values
         # raise ValueError
 
-    @property
     def get_types(self) -> List[Type]:
         # internal list cannot be changed from outside
         return self.__types[:]
 
-    @property
     def get_tmax(self) -> float:
         return self.__tmax
 
-    @property
     def get_pop_max(self) -> int:
         return self.__pop_max
 
