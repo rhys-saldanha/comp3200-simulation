@@ -1,8 +1,8 @@
 import itertools
 from typing import List
 
-import networkx as nx
 import matplotlib.pyplot as plt
+import networkx as nx
 
 from simulation import Simulation
 from type import Type
@@ -10,7 +10,7 @@ from type import Type
 resolution = 1000
 
 
-def line_plot(types: List[Type], tmax: int, size_max: int, plt=plt):
+def line_plot(types: List[Type], tmax: float, size_max: int, plt=plt):
     """
     Types do not have a statistics history anymore.
     This kind of statistics graph was not useful for analysis.
@@ -37,7 +37,7 @@ def line_plot(types: List[Type], tmax: int, size_max: int, plt=plt):
     plt.xlim((0, tmax))
 
 
-def stacked_plot(types: List[Type], tmax: int, size_max: int, plt=plt):
+def stacked_plot(types: List[Type], tmax: float, size_max: int, plt=plt):
     plt.xlabel("time")
     plt.ylabel("Number of type")
 
@@ -63,8 +63,10 @@ def network_with_dominant(sim: Simulation, nx=nx) -> None:
 
     pos = {}
 
-    t = None
-    ts = sim.finals
+    # Find largest type at end of simulation
+    t = max(sim.get_types, key=lambda t: t.history[-1][0])
+    ts = t.parents
+    # Trace back to wildtype through largest parent Types
     while t != sim.wildtype:
         prev_t = t
         t = max(ts, key=lambda x: x.max_size)
