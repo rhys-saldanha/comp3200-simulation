@@ -46,8 +46,8 @@ class Type:
         # Initialise with no mutation options except self
         # self.add_mutation(self, 1.0)
 
-        self.children = set()
-        self.parents = set()
+        self.children: List['Type'] = list()
+        self.parents: List['Type'] = list()
 
         self.update(Event.NOTHING, 0.0, False)
 
@@ -150,10 +150,10 @@ class Type:
         return (sumsq / n) - np.square(mean), sumsq
 
     def add_child(self, c: 'Type'):
-        self.children.add(c)
+        self.children.append(c)
 
     def add_parent(self, p: 'Type'):
-        self.parents.add(p)
+        self.parents.append(p)
 
     def clone(self):
         return Type(self.name, self.initial_size, self.rates[Event.BIRTH], self.rates[Event.DEATH])
