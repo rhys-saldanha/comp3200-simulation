@@ -14,6 +14,7 @@ class Event(Enum):
 class Type:
     mutations: List[Tuple['Type', float]]
     pos: Tuple[int, int]
+    name = 'default'
 
     def __init__(self, name: str, initial_size: int, birth_rate: float = 1.0, death_rate: float = 1.0):
         if initial_size < 0:
