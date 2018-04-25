@@ -67,7 +67,7 @@ def one_type_exp():
 
 if __name__ == '__main__':
     sim = mutations_simulation()
-    save_simulation(sim, 'full_10.0_ABC/D')
+    save_simulation(sim, 'full_10.0_ABC_D')
     # sim = load_simulation('20180425-194817.sim')
     # display_simulation(sim)
 
