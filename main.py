@@ -1,12 +1,16 @@
-import data_plot
+import pickle
+from time import time, strftime
+
 import matplotlib.pyplot as plt
 import networkx as nx
+
+import data_plot
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
 
 
-def mutations():
+def mutations_simulation() -> Simulation:
     rates = {tuple('abc'): (10.0, 9.), tuple('Abc'): (10.0, 7.), tuple('ABc'): (10.0, 6.), tuple('ABC'): (10.0, 5.)}
 
     sim = Generator.parameters(tuple('abc'), tuple('ABC'), tuple('ABD'), rates=rates, size=10000, wildtype_size=10000,
@@ -15,8 +19,28 @@ def mutations():
     # for t in sim.get_types:
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
-    sim.run(3.)
+    sim.run(10.)
 
+    return sim
+
+
+def save_simulation(sim: Simulation, name: str = None):
+    if not name:
+        name = strftime("%Y%m%d-%H%M%S")
+
+    with open('{}.sim'.format(name), 'wb') as f:
+        pickle.dump(sim, f, -1)
+
+
+def load_simulation(name: str) -> Simulation:
+    t0 = time()
+    with open(name, 'rb') as f:
+        p = pickle.load(f)
+        print("Loading simulation complete in {:f}s".format(time() - t0))
+        return p
+
+
+def display_simulation(sim):
     data_plot.network_with_dominant(sim, nx)
     plt.figure()
     data_plot.line_plot(sim.get_types, sim.get_tmax, sim.get_pop_max, plt)
@@ -42,7 +66,10 @@ def one_type_exp():
 
 
 if __name__ == '__main__':
-    mutations()
+    sim = mutations_simulation()
+    save_simulation(sim, 'full_10.0_ABC/D')
+    # sim = load_simulation('20180425-194817.sim')
+    # display_simulation(sim)
 
 # mutation = Generator.Mutation
 # mutation_rates = {
