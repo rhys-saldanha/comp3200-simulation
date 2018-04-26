@@ -1,7 +1,8 @@
 import itertools
+import json
 from collections import namedtuple
 from functools import reduce
-from typing import List, Set, Tuple, Dict
+from typing import List, Set, Tuple, Dict, Sequence
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -24,16 +25,26 @@ class Generator:
 
     @staticmethod
     def config_file(filename: str):
-        # TODO generate Types and Simulation from file
-        print('Not implemented')
-        pass
+        with open(filename, 'r') as f:
+            data = json.load(f)
+
+        if type(data['wildtype']) is str:
+            data['wildtype'] = tuple(data['wildtype'])
+        for i, m in enumerate(data['mutated']):
+            if type(m) is str:
+                data['mutated'][i] = tuple(m)
+        for k, v in data['rates'].items():
+            data['rates'][k] = tuple(v)
+        data['default_rate'] = tuple(data['default_rate'])
+
+        return Generator.parameters(**data)
 
     @staticmethod
-    def parameters(wildtype: Tuple, *mutated: Tuple,
-                   rates: Dict[Tuple[str, str], Tuple[float, float]] = False,
+    def parameters(wildtype: Tuple, mutated: List[Tuple],
+                   rates: Dict[Sequence[str], Tuple[float, float]] = False,
                    default_rate: Tuple[float, float] = (0.0, 1.0),
                    mutation_rates: Dict[Mutation, float] = False, default_mutation_rate: float = 0.001,
-                   wildtype_size: int = 200, size: int = 200) -> Simulation:
+                   wildtype_size: int = None, size: int = 200) -> Simulation:
         for m in mutated:
             if len(wildtype) != len(m):
                 raise ParameterError('wildtype and mutated must have the same number of genes')
@@ -41,6 +52,8 @@ class Generator:
             rates = dict()
         if not mutation_rates:
             mutation_rates = dict()
+        if not wildtype_size:
+            wildtype_size = size
 
         all_seq = Generator.all_seq(wildtype, *mutated)
 
@@ -104,8 +117,11 @@ class Generator:
 
 
 if __name__ == '__main__':
-    sim = Generator.parameters(('0', '0', '0', '0', '0', '0'), ('1', '1', '1', '1', '1', '1'),
-                               ('1', '1', '1', '1', '2', '1'))
+    # sim = Generator.parameters(('0', '0', '0', '0', '0', '0'), ('1', '1', '1', '1', '1', '1'),
+    #                            ('1', '1', '1', '1', '2', '1'))
+
+    # sim = Generator.parameters(tuple('abc'), tuple('ABC'), tuple('ABD'), size=10000, wildtype_size=10000,
+    #                            default_rate=(10.0, 9.))
 
     # sim = Generator.parameters(('a', 'b', 'c', 'd', 'e', 'f'), ('A', 'B', 'C', 'D', 'E1', 'F'),
     #                            ('A', 'B', 'C', 'D', 'E2', 'F'))
@@ -113,12 +129,17 @@ if __name__ == '__main__':
     # for t in sim.get_types:
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
-    # for t in sim.get_types:
-    #     print('{}, {}'.format(t, list(map(str, t.children))))
-    #     print('{}, {}'.format(t, list(map(str, t.parents))))
+    # for t in sim.get_types():
+    #     print('children: {}, {}'.format(t, list(map(str, t.children))))
+    #     print('parents: {}, {}'.format(t, list(map(str, t.parents))))
     #     print('-----')
+    #
+    # print('number of types: {}'.format(len(sim.get_types())))
 
-    print('number of types: {}'.format(len(sim.get_types)))
+    # network(sim, nx)
+    # plt.show()
 
+    sim = Generator.config_file('parameters/abc_ABC_D.json')
+    # print([str(t) for t in sim.get_types()])
     network(sim, nx)
     plt.show()
