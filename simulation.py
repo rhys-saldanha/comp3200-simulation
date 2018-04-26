@@ -28,7 +28,6 @@ class Simulation:
         self.__pop_max: int = kwargs.get('max', self.__size)
 
         self.wildtype: Type = kwargs.get('wildtype', types[0])
-        self.finals: List[Type] = kwargs.get('finals', [types[-1]])
 
         self.__tmax = 0
 
@@ -135,6 +134,19 @@ class Simulation:
     def get_pop_max(self) -> int:
         return self.__pop_max
 
+    def get_dominant_path(self) -> List[Type]:
+        path: List[Type] = []
+        # Find largest type at end of simulation
+        t = max(self.get_types(), key=lambda x: x.size)
+        # Trace back to wildtype through largest parent
+        while t != self.wildtype:
+            path.append(t)
+            t = max(t.parents, key=lambda x: x.max_size)
+        # At wildtype, still need to add it to the path
+        path.append(t)
+        return path
+
     def clone(self):
         cloned_types = [t.clone() for t in self.__types]
-        return Simulation(*cloned_types, max=self.__pop_max)
+        cloned_wildtype = cloned_types[cloned_types.index(self.wildtype)]
+        return Simulation(*cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
