@@ -31,7 +31,7 @@ class Type:
         self.full_name = "{}({},{})".format(self.name, *self.rates.values())
 
         self.time = -1.0
-        self.history = list()
+        # self.history = list()
         self.size = self.max_size = self.initial_size = initial_size
 
         self.stats_history = list()
@@ -55,20 +55,21 @@ class Type:
         # Things to do once the type object is passed to the Simulation
         self.add_self_mutation()
 
-    def update(self, op: Event, time: float, mutate: bool = True):
+    def update(self, op: Event, time: float, mutate: bool = True) -> int:
         # Check that you haven't already been updated for this time
         if self.time != time:
             # Check that you're allowed to mutate and you're a birth update
             if mutate and op == Event.BIRTH:
-                self.find_mutation(time)
+                return self.find_mutation(time)
             else:
                 # Otherwise update your own values
                 self.size += op.value
                 self.max_size = max(self.size, self.max_size)
                 self.time = time
-                self.history.append((self.size, self.time))
-
+                # self.history.append((self.size, self.time))
                 # self.record_stats()
+
+        return self.size
 
     def record_stats(self):
         self.n += 1
@@ -109,7 +110,7 @@ class Type:
     def set_mutation_total(self):
         self.mutation_total = sum([m[1] for m in self.mutations])
 
-    def find_mutation(self, time: float):
+    def find_mutation(self, time: float) -> int:
         n = np.random.uniform()
         t = 0
         # Loop through mutations
@@ -118,17 +119,16 @@ class Type:
             # If argument is within the new total, we've found the mutation it applies to
             if n < t:
                 # A mutation event cannot itself mutate
-                e.update(Event.BIRTH, time, False)
-                return
+                return e.update(Event.BIRTH, time, False)
         # self.update(Event.BIRTH, time, False)
 
-    @property
-    def get_sizes(self) -> List[float]:
-        return list(list(zip(*self.history))[0])
-
-    @property
-    def get_times(self) -> List[float]:
-        return list(list(zip(*self.history))[1])
+    # @property
+    # def get_sizes(self) -> List[float]:
+    #     return list(list(zip(*self.history))[0])
+    #
+    # @property
+    # def get_times(self) -> List[float]:
+    #     return list(list(zip(*self.history))[1])
 
     def __eq__(self, other):
         return type(other) is Type and self.name == other.name

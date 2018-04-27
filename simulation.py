@@ -1,5 +1,5 @@
 from time import time
-from typing import List
+from typing import List, Dict
 
 import numpy as np
 
@@ -22,20 +22,26 @@ class Simulation:
         """
         self.__types: List[Type] = types
         self.__time = 0
-        # self.__history = list()
-        self.__update_values()
+        self.__history = {t: [] for t in types}
+
+        self.wildtype: Type = kwargs.get('wildtype', types[0])
+        self.__save_history: bool = kwargs.get('history', False)
+
+        self.__size: int = 0
+        self.init_types()
+
+        self.__tmax: int = 0
         # Set population maximum equal to initial population
         self.__pop_max: int = kwargs.get('max', self.__size)
 
-        self.wildtype: Type = kwargs.get('wildtype', types[0])
-
-        self.__tmax = 0
-
-        self.init_types()
+        self.probability: Dict[Event, float] = {Event.BIRTH: sum([t.probability(Event.BIRTH) for t in self.__types]),
+                                                Event.DEATH: sum([t.probability(Event.DEATH) for t in self.__types])}
+        self.probability_total = sum(self.probability.values())
 
     def init_types(self):
         for t in self.__types:
             t.sim_init()
+            self.__size += t.size
 
     def run(self, t: float) -> None:
         """
@@ -80,25 +86,26 @@ class Simulation:
             # May result in mutation and operation to different type
             t.update(op, self.__time)
 
-        # TODO reset all values is __update_values() and calculate new ones in for loop
-        for t in self.__types:
-            # TODO use update to get new size
-            t.update(Event.NOTHING, self.__time)
-            # TODO get new probabilities for each type
+        s = 0.0
+        p_birth = 0.0
+        p_death = 0.0
 
-        self.__update_values()
+        for t in self.__types:
+            update = t.update(Event.NOTHING, self.__time)
+            if self.__save_history:
+                self.__history[t].append((update, self.__time))
+            s += update
+            p_birth += t.probability(Event.BIRTH)
+            p_death += t.probability(Event.DEATH)
+
+        self.__size = s
+        self.probability[Event.BIRTH] = p_birth
+        self.probability[Event.DEATH] = p_death
+        self.probability_total = p_birth + p_death
 
     @property
     def __time_nothing(self) -> float:
         return -1.0 * np.log(np.random.uniform()) / self.probability_total
-
-    def __update_values(self):
-        # Reduce the number of computations to only when values have been changed
-        self.probability = {Event.BIRTH: sum([t.probability(Event.BIRTH) for t in self.__types]),
-                            Event.DEATH: sum([t.probability(Event.DEATH) for t in self.__types])}
-        self.probability_total = sum(self.probability.values())
-        self.__size = sum([t.size for t in self.__types])
-        # self.__history.append((self.__time, self.__size))
 
     def __choose_event_any(self) -> (Type, Event):
         if self.probability_total == 0:
