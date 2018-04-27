@@ -1,7 +1,3 @@
-import pickle
-from time import time, strftime
-from typing import List
-
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -9,6 +5,7 @@ import data_plot
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
+from useful import load_path
 
 
 def mutations_simulation() -> Simulation:
@@ -23,24 +20,6 @@ def mutations_simulation() -> Simulation:
     sim.run(10.)
 
     return sim
-
-
-def save_path(sim: Simulation, name: str = None):
-    if not name:
-        name = strftime("%Y%m%d-%H%M%S")
-    else:
-        name.replace('[TIME]', strftime("%Y%m%d-%H%M%S"))
-
-    with open('{}.sim'.format(name), 'wb') as f:
-        pickle.dump(sim.get_dominant_path(), f, -1)
-
-
-def load_path(name: str) -> List[Type]:
-    t0 = time()
-    with open('{}.sim'.format(name), 'rb') as f:
-        p = pickle.load(f)
-        print("Loading simulation complete in {:f}s".format(time() - t0))
-        return p
 
 
 def display_simulation(sim: Simulation):
@@ -83,7 +62,7 @@ def graph_multiple_sims():
 
 
 if __name__ == '__main__':
-    graph_multiple_sims()
+    display_simulation(mutations_simulation())
 
 # sim = mutations_simulation()
 # save_simulation(sim, '10.0_ABC_D_3')
