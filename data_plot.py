@@ -64,7 +64,7 @@ def network_with_dominant(sim: Simulation, nx=nx) -> None:
     # Find largest type at end of simulation
     # t = sim.get_max_type()
     t = max(sim.get_types(), key=lambda t: t.size)
-    print('largest type at end: {}'.format(t))
+    # print('largest type at end: {}'.format(t))
     ts = t.parents
     # Trace back to wildtype (type with no parents) through largest parent Types
     # while t != sim.wildtype and len(t.parents) != 0:
@@ -73,8 +73,8 @@ def network_with_dominant(sim: Simulation, nx=nx) -> None:
             break
         prev_t = t
         t = max(ts, key=lambda x: x.max_size)
-        print('parents: {}'.format([t.name for t in ts]))
-        print('largest parent: {}'.format(t))
+        # print('parents: {}'.format([t.name for t in ts]))
+        # print('largest parent: {}'.format(t))
         if prev_t and t:
             G[prev_t][t]['color'] = 'r'
 
