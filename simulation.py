@@ -26,6 +26,7 @@ class Simulation:
 
         self.wildtype: Type = kwargs.get('wildtype', types[0])
         self.__save_history: bool = kwargs.get('history', False)
+        self.__print: bool = kwargs.get('print', False)
 
         self.__size: int = 0
         self.init_types()
@@ -51,6 +52,17 @@ class Simulation:
 
         :param t: when to run the simulation till
         """
+        if self.__print:
+            self.__run_with_prints(t)
+        else:
+            self.__run_silent(t)
+
+    def __run_silent(self, t: float) -> None:
+        self.__tmax = t
+        while self.__time < t:
+            self.__cycle()
+
+    def __run_with_prints(self, t: float) -> None:
         self.__tmax = t
         print("Running till time {}".format(t))
         maximum_percentage = -1
