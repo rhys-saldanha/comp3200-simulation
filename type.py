@@ -137,7 +137,7 @@ class Type:
         return hash(self.name)
 
     def __str__(self):
-        return '{} ({},{})'.format(self.name, *self.rates.values(), self.size)
+        return '{}|{},{}'.format(self.name, *self.rates.values(), self.size)
 
     @staticmethod
     def _calc_mean(sum, size, n):
