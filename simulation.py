@@ -1,7 +1,6 @@
+import random
 from time import time
 from typing import List, Dict, Tuple
-
-import numpy as np
 
 from type import Type, Event
 
@@ -117,13 +116,15 @@ class Simulation:
 
     @property
     def __time_nothing(self) -> float:
-        return -1.0 * np.log(np.random.uniform()) / self.probability_total
+        # return -1.0 * np.log(np.random.uniform()) / self.probability_total
+        return random.expovariate(self.probability_total)
 
     def __choose_event_any(self) -> (Type, Event):
         if self.probability_total == 0:
             # All types have died out
             return None, Event.NOTHING
-        n = np.random.uniform(high=self.probability_total)
+        # n = np.random.uniform(high=self.probability_total)
+        n = random.random() * self.probability_total
 
         if n < self.probability[Event.BIRTH]:
             return self.__choose_event(Event.BIRTH, n), Event.BIRTH
@@ -131,7 +132,8 @@ class Simulation:
 
     def __choose_event(self, s: Event, n: float = None) -> Type:
         if n is None:
-            n = np.random.uniform(high=self.probability[s])
+            # n = np.random.uniform(high=self.probability[s])
+            n = random.random() * self.probability[s]
 
         t = 0.0
         # Loop through types
