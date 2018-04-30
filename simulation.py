@@ -178,6 +178,12 @@ class Simulation:
 
     def clone(self) -> 'Simulation':
         cloned_types = [t.clone() for t in self.__types]
-        # TODO clone mutations
+
+        for sim_type in self.__types:
+            cloned_type = cloned_types[cloned_types.index(sim_type)]
+            for mutant_type, p in sim_type.mutations:
+                cloned_mutant = cloned_types[cloned_types.index(mutant_type)]
+                cloned_type.add_mutation(cloned_mutant, p)
+
         cloned_wildtype = cloned_types[cloned_types.index(self.wildtype)]
         return Simulation(*cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
