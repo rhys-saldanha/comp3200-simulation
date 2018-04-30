@@ -10,7 +10,7 @@ from type import Type
 resolution = 1000
 
 
-def line_plot(sim: Simulation, plt=plt):
+def line_plot(sim: Simulation, plt=plt, do_reduce=True):
     if not sim.check_history():
         print('This simulation has no history')
         return
@@ -19,7 +19,7 @@ def line_plot(sim: Simulation, plt=plt):
     plt.xlabel("time")
     plt.ylabel("Number of type")
     num_points = len(sim.get_history(sim.get_types()[0]))
-    reduce = max(1, int(num_points / resolution))
+    reduce = max(1, int(num_points / resolution)) if do_reduce else 1
 
     legend_list = []
     for e in sim.get_types():
