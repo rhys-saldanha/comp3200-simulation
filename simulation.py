@@ -25,7 +25,7 @@ class Simulation:
 
         self.wildtype: Type = kwargs.get('wildtype', types[0])
         self.__save_history: bool = kwargs.get('history', False)
-        self.__print: bool = kwargs.get('print', False)
+        self.__prints: bool = kwargs.get('prints', False)
 
         self.__size: int = 0
         self.init_types()
@@ -51,7 +51,7 @@ class Simulation:
 
         :param t: when to run the simulation till
         """
-        if self.__print:
+        if self.__prints:
             self.__run_with_prints(t)
         else:
             self.__run_silent(t)
