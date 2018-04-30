@@ -64,6 +64,16 @@ def graph_multiple_sims(paths: List[List[Type]]):
     # http_server.load_url('force/force.html')
 
 
+def check_doubling_time():
+    a = Type('A', 1000, 4., 2.)
+    s = Simulation(a, max=20000, history=True)
+
+    s.run(3.0)
+
+    data_plot.line_plot(s, plt)
+    plt.show()
+
+
 if __name__ == '__main__':
     paths = load_paths('data/', '10_0_abc_ABC_D_')
     print([str(t) for t in paths[0]])
