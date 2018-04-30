@@ -3,6 +3,10 @@ import os
 import pickle
 from multiprocessing import Pool, cpu_count
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
+import data_plot
 from simulation import Simulation
 from simulation_generator import Generator
 
@@ -31,6 +35,22 @@ if __name__ == '__main__':
     g = Generator(print=PRINT)
 
     s = g.config_file('parameters/' + PARAMETERS)
+
+    for t in s.get_types():
+        print([(str(x), n) for (x, n) in t.mutations])
+    print('---------------')
+    data_plot.network(s, nx)
+    plt.show()
+
+    # Duplicate Simulation, save history, run and show graph just to check it's all good
+    s_dup = s.clone()
+    for t in s_dup.get_types():
+        print([(str(x), n) for (x, n) in t.mutations])
+    s_dup.set_history(True)
+    s_dup.run(TIME)
+    data_plot.line_plot(s_dup, plt)
+    plt.show()
+
     with Pool(processes=cpu_count() - 1) as pool:
         simulations = ['data/' + PARAMETERS + '_{}'.format(i) for i in range(SIM_NUM)]
 
