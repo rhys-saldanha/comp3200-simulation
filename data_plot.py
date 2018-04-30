@@ -99,15 +99,13 @@ def network(sim: Simulation, nx=nx):
     nx.draw(G, pos=pos, with_labels=True)
 
 
-def network_with_percentages(sim: Simulation, paths: List[List[Type]], nx=nx):
-    # TODO check simulations are all on the same types, just look at wildtype
-    # TODO check simulations all ran for the same time?
-
+def network_with_percentages(sim: Simulation, paths: List[List[Type]], nx=nx) -> nx.Graph:
     G = nx.Graph()
     G.add_nodes_from([t for t in sim.get_types()])
     G.add_edges_from(list(itertools.chain(*[[(t, c) for c in t.children] for t in sim.get_types()])))
 
     num_paths = len(paths)
+    node_colour = {}
 
     for p in paths:
         for i, t in enumerate(p[:-1]):
@@ -118,18 +116,25 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], nx=nx):
                 G[t][t_next]['weight'] = 1
             if 'colour' not in G[t][t_next]:
                 G[t][t_next]['colour'] = 'r'
+        for t in p:
+            if t not in node_colour:
+                node_colour[t] = 'r'
 
     pos = {}
     for t in sim.get_types():
         pos[t] = t.pos
 
-    colours = [G[u][v].get('colour', 'b') for u, v in G.edges()]
+    edge_colour = [G[u][v].get('colour', 'g') for u, v in G.edges()]
     weights = [G[u][v].get('weight', 1) for u, v in G.edges()]
+    node_colour = [node_colour.get(u, 'g') for u in G]
+
     edge_labels = {}
     for u, v in G.edges():
         weight = G[u][v].get('weight', 0)
         if weight != 0:
             edge_labels[(u, v)] = '{}%'.format((weight * 100) / num_paths)
 
-    nx.draw(G, pos=pos, edge_color=colours, width=weights, with_labels=True)
+    nx.draw(G, pos=pos, node_color=node_colour, edge_color=edge_colour, width=weights, with_labels=True, node_size=2500)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+    return G
