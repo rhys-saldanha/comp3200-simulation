@@ -165,10 +165,17 @@ class Simulation:
         path.append(t)
         return path
 
+    def set_history(self, b: bool):
+        self.__save_history = b
+
     def get_history(self, t: Type) -> List[Tuple[int, float]]:
         return self.__history[t]
 
-    def clone(self):
+    def check_history(self) -> bool:
+        return self.__save_history
+
+    def clone(self) -> 'Simulation':
         cloned_types = [t.clone() for t in self.__types]
+        # TODO clone mutations
         cloned_wildtype = cloned_types[cloned_types.index(self.wildtype)]
         return Simulation(*cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
