@@ -10,7 +10,7 @@ from type import Type
 resolution = 1000
 
 
-def line_plot(types: List[Type], tmax: float, size_max: int, plt=plt):
+def line_plot(sim: Simulation, plt=plt):
     """
     Types do not have a statistics history anymore.
     This kind of statistics graph was not useful for analysis.
@@ -23,19 +23,19 @@ def line_plot(types: List[Type], tmax: float, size_max: int, plt=plt):
     plt.title("Plot of type size over time")
     plt.xlabel("time")
     plt.ylabel("Number of type")
-
-    num_points = len(types[0].history)
+    # list(list(zip(*self.history))[0])
+    num_points = len(sim.get_history(sim.get_types()[0]))
     # reduce = int(num_points / (resolution * tmax))
-    reduce = int(num_points / (resolution))
+    reduce = max(1, int(num_points / (resolution)))
 
     legend_list = []
-    for e in types:
-        v, t = list(zip(*e.history[::reduce]))
+    for e in sim.get_types():
+        v, t = list(zip(*sim.get_history(e)[::reduce]))
         plt.scatter(t, v, marker='.')
         legend_list.append('{}'.format(e.full_name))
     plt.legend(legend_list, loc='upper left')
-    plt.ylim((0, size_max))
-    plt.xlim((0, tmax))
+    plt.ylim((0, sim.get_pop_max()))
+    plt.xlim((0, sim.get_tmax()))
 
 
 def stacked_plot(types: List[Type], tmax: float, size_max: int, plt=plt):

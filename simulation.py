@@ -1,5 +1,5 @@
 from time import time
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import numpy as np
 
@@ -164,6 +164,9 @@ class Simulation:
         # At wildtype, still need to add it to the path
         path.append(t)
         return path
+
+    def get_history(self, t: Type) -> List[Tuple[int, float]]:
+        return self.__history[t]
 
     def clone(self):
         cloned_types = [t.clone() for t in self.__types]
