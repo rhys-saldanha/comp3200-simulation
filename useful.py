@@ -1,5 +1,7 @@
 import pickle
-from time import strftime, time
+from os import listdir
+from os.path import isfile, join
+from time import strftime
 from typing import List
 
 from simulation import Simulation
@@ -17,8 +19,21 @@ def save_path(sim: Simulation, name: str = None) -> None:
 
 
 def load_path(name: str) -> List[Type]:
-    t0 = time()
-    with open('{}.sim'.format(name), 'rb') as f:
+    # t0 = time()
+    if '.sim' != name[-4:]:
+        name += '.sim'
+
+    with open(name, 'rb') as f:
         p = pickle.load(f)
-        print("Loading simulation complete in {:f}s".format(time() - t0))
+        # print("Loading path complete in {:f}s".format(time() - t0))
         return p
+
+
+def load_paths(directory: str, part_name: str) -> List[List[Type]]:
+    files = [f for f in listdir(directory) if isfile(join(directory, f)) and part_name in f]
+
+    paths = []
+    for file_name in files:
+        paths.append(load_path(directory + file_name))
+
+    return paths
