@@ -11,22 +11,15 @@ resolution = 1000
 
 
 def line_plot(sim: Simulation, plt=plt):
-    """
-    Types do not have a statistics history anymore.
-    This kind of statistics graph was not useful for analysis.
+    if not sim.check_history():
+        print('This simulation has no history')
+        return
 
-    :param plt:
-    :param size_max:
-    :param int tmax: maximum time of simulation
-    :param List[Type] types: list of types to plot
-    """
     plt.title("Plot of type size over time")
     plt.xlabel("time")
     plt.ylabel("Number of type")
-    # list(list(zip(*self.history))[0])
     num_points = len(sim.get_history(sim.get_types()[0]))
-    # reduce = int(num_points / (resolution * tmax))
-    reduce = max(1, int(num_points / (resolution)))
+    reduce = max(1, int(num_points / resolution))
 
     legend_list = []
     for e in sim.get_types():
