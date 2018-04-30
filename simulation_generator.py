@@ -23,8 +23,13 @@ class ParameterError(Exception):
 class Generator:
     Mutation = namedtuple('Mutation', ['source', 'target'])
 
-    @staticmethod
-    def config_file(filename: str):
+    def __init__(self, **kwargs):
+        self.__save_history: bool = kwargs.get('history', False)
+        self.__print: bool = kwargs.get('print', False)
+
+    def config_file(self, filename: str):
+        if '.json' != filename[-5:]:
+            filename += '.json'
         with open(filename, 'r') as f:
             data = json.load(f)
 
@@ -33,14 +38,16 @@ class Generator:
         for i, m in enumerate(data['mutated']):
             if type(m) is str:
                 data['mutated'][i] = tuple(m)
-        for k, v in data['rates'].items():
-            data['rates'][k] = tuple(v)
+        ks = list(data['rates'].keys())
+        for k in ks:
+            v = data['rates'][k]
+            data['rates'][tuple(k)] = tuple(v)
+            del data['rates'][k]
         data['default_rate'] = tuple(data['default_rate'])
+        print(data['rates'])
+        return self.parameters(**data)
 
-        return Generator.parameters(**data)
-
-    @staticmethod
-    def parameters(wildtype: Tuple, mutated: List[Tuple],
+    def parameters(self, wildtype: Tuple, mutated: List[Tuple],
                    rates: Dict[Sequence[str], Tuple[float, float]] = False,
                    default_rate: Tuple[float, float] = (0.0, 1.0),
                    mutation_rates: Dict[Mutation, float] = False, default_mutation_rate: float = 0.001,
@@ -55,7 +62,7 @@ class Generator:
         if not wildtype_size:
             wildtype_size = size
 
-        all_seq = Generator.all_seq(wildtype, *mutated)
+        all_seq = self.all_seq(wildtype, *mutated)
 
         types: Dict[Tuple, Type] = dict()
 
@@ -73,23 +80,23 @@ class Generator:
             for s, source in enumerate(sources):
                 types[source].pos = (i, s / len(sources))
 
-                targets = Generator.partial_match(wildtype, source, all_seq, i + 1) - used_sources
+                targets = self.partial_match(wildtype, source, all_seq, i + 1) - used_sources
 
                 for target in targets:
-                    types[source].add_mutation(types[target], mutation_rates.get(Generator.Mutation(source, target),
+                    types[source].add_mutation(types[target], mutation_rates.get(self.Mutation(source, target),
                                                                                  default_mutation_rate))
 
                     types[source].add_child(types[target])
                     types[target].add_parent(types[source])
 
-                    types[target].add_mutation(types[source], mutation_rates.get(Generator.Mutation(target, source),
+                    types[target].add_mutation(types[source], mutation_rates.get(self.Mutation(target, source),
                                                                                  default_mutation_rate))
 
             used_sources |= sources
-            sources = Generator.partial_match_list(wildtype, sources, all_seq, i + 1) - used_sources
+            sources = self.partial_match_list(wildtype, sources, all_seq, i + 1) - used_sources
 
         return Simulation(*types.values(), max=size, wildtype=types[wildtype],
-                          finals=[types[t] for t in finals])
+                          finals=[types[t] for t in finals], history=self.__save_history, print=self.__print)
 
     @staticmethod
     def all_seq(wildtype, *mutated) -> List:
@@ -139,7 +146,9 @@ if __name__ == '__main__':
     # network(sim, nx)
     # plt.show()
 
-    sim = Generator.config_file('parameters/abc_ABC_D.json')
+    gen = Generator()
+
+    sim = gen.config_file('parameters/abc_ABC_D.json')
     # print([str(t) for t in sim.get_types()])
     network(sim, nx)
     plt.show()
