@@ -27,17 +27,16 @@ class Generator:
         self.__save_history: bool = kwargs.get('history', False)
         self.__print: bool = kwargs.get('print', False)
 
-    def config_file(self, filename: str):
+    def config_file(self, filename: str) -> Simulation:
         if '.json' != filename[-5:]:
             filename += '.json'
         with open(filename, 'r') as f:
             data = json.load(f)
 
-        if type(data['wildtype']) is str:
-            data['wildtype'] = tuple(data['wildtype'])
+        data['wildtype'] = tuple(data['wildtype'])
         for i, m in enumerate(data['mutated']):
-            if type(m) is str:
-                data['mutated'][i] = tuple(m)
+            data['mutated'][i] = tuple(m)
+
         ks = list(data['rates'].keys())
         for k in ks:
             v = data['rates'][k]
