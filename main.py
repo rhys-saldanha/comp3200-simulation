@@ -1,3 +1,5 @@
+from typing import List
+
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -5,14 +7,15 @@ import data_plot
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
-from useful import load_path
+from useful import load_paths
 
 
 def mutations_simulation() -> Simulation:
+    gen = Generator()
     rates = {tuple('abc'): (10.0, 9.), tuple('Abc'): (10.0, 7.), tuple('ABc'): (10.0, 6.), tuple('ABC'): (10.0, 5.)}
 
-    sim = Generator.parameters(tuple('abc'), [tuple('ABC'), tuple('ABD')], rates=rates, size=10000, wildtype_size=10000,
-                               default_rate=(10.0, 9.))
+    sim = gen.parameters(tuple('abc'), [tuple('ABC'), tuple('ABD')], rates=rates, size=10000, wildtype_size=10000,
+                         default_rate=(10.0, 9.))
 
     # for t in sim.get_types:
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
@@ -48,21 +51,24 @@ def one_type_exp():
     plt.show()
 
 
-def graph_multiple_sims():
-    paths = [load_path('10.0_ABC_D'), load_path('10.0_ABC_D_2'), load_path('10.0_ABC_D_3'),
-             load_path('3.0_ABC_D')]
+def graph_multiple_sims(paths: List[List[Type]]):
+    gen = Generator()
 
-    rates = {tuple('abc'): (10.0, 9.), tuple('Abc'): (10.0, 7.), tuple('ABc'): (10.0, 6.), tuple('ABC'): (10.0, 5.)}
-
-    sim = Generator.parameters(tuple('abc'), [tuple('ABC'), tuple('ABD')], rates=rates, size=10000, wildtype_size=10000,
-                               default_rate=(10.0, 9.))
-
-    data_plot.network_with_percentages(sim, paths, nx)
+    sim = gen.config_file('parameters/two_paths.json')
+    # data_plot.network(sim)
+    G = data_plot.network_with_percentages(sim, paths, nx)
     plt.show()
+
+    # d = json_graph.node_link_data(G)
+    # json.dump(d, open('force/force.json', 'w'))
+    # http_server.load_url('force/force.html')
 
 
 if __name__ == '__main__':
-    display_simulation(mutations_simulation())
+    paths = load_paths('data/', '10_0_abc_ABC_D_')
+    print([str(t) for t in paths[0]])
+    print(paths)
+    graph_multiple_sims(paths)
 
 # sim = mutations_simulation()
 # save_simulation(sim, '10.0_ABC_D_3')
