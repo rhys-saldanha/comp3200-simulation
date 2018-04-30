@@ -7,7 +7,6 @@ import data_plot
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
-from useful import load_paths
 
 
 def mutations_simulation() -> Simulation:
@@ -65,7 +64,9 @@ def graph_multiple_sims(paths: List[List[Type]]):
 
 
 def check_doubling_time():
+    # divide and times sizes by 10 to show doubling time is consistent
     a = Type('A', 1000, 4., 2.)
+    # stop point reduction if small simulation
     s = Simulation(a, max=20000, history=True)
 
     s.run(3.0)
@@ -75,10 +76,7 @@ def check_doubling_time():
 
 
 if __name__ == '__main__':
-    paths = load_paths('data/', '10_0_abc_ABC_D_')
-    print([str(t) for t in paths[0]])
-    print(paths)
-    graph_multiple_sims(paths)
+    check_doubling_time()
 
 # sim = mutations_simulation()
 # save_simulation(sim, '10.0_ABC_D_3')
