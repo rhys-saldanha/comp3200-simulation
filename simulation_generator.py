@@ -44,7 +44,6 @@ class Generator:
             data['rates'][tuple(k)] = tuple(v)
             del data['rates'][k]
         data['default_rate'] = tuple(data['default_rate'])
-        print(data['rates'])
         return self.parameters(**data)
 
     def parameters(self, wildtype: Tuple, mutated: List[Tuple],
