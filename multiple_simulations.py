@@ -8,7 +8,7 @@ from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
 
-PARAMETERS = 'two_paths'
+PARAMETERS = 'two_paths_ABC'
 SIM_NUM = 30
 TIME = 10.0
 PRINT = False
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # Make folder for data if it doesn't exist
     os.makedirs('data/', exist_ok=True)
 
-    g = Generator(print=PRINT)
+    g = Generator(prints=PRINT)
 
     simulation = g.config_file('parameters/' + PARAMETERS)
 

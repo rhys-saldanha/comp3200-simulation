@@ -25,7 +25,7 @@ class Generator:
 
     def __init__(self, **kwargs):
         self.__save_history: bool = kwargs.get('history', False)
-        self.__print: bool = kwargs.get('print', False)
+        self.__prints: bool = kwargs.get('prints', False)
 
     def config_file(self, filename: str) -> Simulation:
         if '.json' != filename[-5:]:
@@ -94,7 +94,7 @@ class Generator:
             sources = self.partial_match_list(wildtype, sources, all_seq, i + 1) - used_sources
 
         return Simulation(*types.values(), max=size, wildtype=types[wildtype],
-                          finals=[types[t] for t in finals], history=self.__save_history, print=self.__print)
+                          finals=[types[t] for t in finals], history=self.__save_history, prints=self.__prints)
 
     @staticmethod
     def all_seq(wildtype, *mutated) -> List:
