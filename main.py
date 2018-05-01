@@ -57,9 +57,9 @@ def one_type_exp():
 
 def graph_multiple_sims():
     gen = Generator()
-    sim = gen.config_file('parameters/two_paths_ABC_D.json')
+    sim = gen.config_file('parameters/two_paths_ABC.json')
 
-    paths = useful.load_paths('data/', 'two_paths')
+    paths = useful.load_paths('data/', 'two_paths_ABC_old.sim')
 
     # data_plot.network(sim)
     G = data_plot.network_with_percentages(sim, paths, nx)
@@ -83,4 +83,4 @@ def check_doubling_time():
 
 
 if __name__ == '__main__':
-    mutations_simulation()
+    graph_multiple_sims()
