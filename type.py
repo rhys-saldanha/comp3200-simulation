@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 from typing import List, Tuple
 
@@ -53,6 +54,13 @@ class Type:
 
     def sim_init(self):
         # Things to do once the type object is passed to the Simulation
+        mutations = set([m for m, _ in self.mutations])
+        relations = set(self.parents + self.children)
+        all_types = mutations | relations
+        if len(mutations) < len(all_types):
+            raise Exception('A parent or child isn\'t mentioned in the mutations')
+        if len(relations) < len(all_types):
+            raise Exception('A mutation isn\'t mentioned in the parents or children')
         self.add_self_mutation()
 
     def update(self, op: Event, time: float, mutate: bool = True) -> int:
@@ -103,24 +111,24 @@ class Type:
         #     self.mutations = list(map(lambda x: (x[0], x[1] / total), self.mutations))
 
     def add_self_mutation(self):
-        self.mutations = [m for m in self.mutations if m[0] != self]
-        self.mutations.append((self, 1 - sum([m[1] for m in self.mutations])))
-        self.set_mutation_total()
+        if self not in map(lambda m: m[0], self.mutations):
+            self.mutations.append((self, 1.0 - sum([m[1] for m in self.mutations])))
+            self.set_mutation_total()
 
     def set_mutation_total(self):
         self.mutation_total = sum([m[1] for m in self.mutations])
 
     def find_mutation(self, time: float) -> int:
-        n = np.random.uniform()
-        t = 0
+        r = random.uniform(0., self.mutation_total)
+        total = 0.
         # Loop through mutations
-        for e, r in self.mutations:
-            t += r
+        for e, p in self.mutations:
+            total += p
             # If argument is within the new total, we've found the mutation it applies to
-            if n < t:
+            if r <= total:
                 # A mutation event cannot itself mutate
                 return e.update(Event.BIRTH, time, False)
-        # self.update(Event.BIRTH, time, False)
+        assert False, 'Shouldn\'t get here'
 
     # @property
     # def get_sizes(self) -> List[float]:
@@ -155,5 +163,7 @@ class Type:
     def add_parent(self, p: 'Type'):
         self.parents.append(p)
 
-    def clone(self):
-        return Type(self.name, self.initial_size, self.rates[Event.BIRTH], self.rates[Event.DEATH])
+    def clone(self) -> 'Type':
+        t = Type(self.name, self.initial_size, *self.rates.values())
+        t.pos = self.pos
+        return t
