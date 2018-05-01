@@ -66,6 +66,7 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentag
 
     num_paths = len(paths)
     node_colour = {}
+    max_width = 10.0
 
     for p in paths:
         for i, t in enumerate(p[:-1]):
@@ -85,7 +86,7 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentag
         pos[t] = t.pos
 
     edge_colour = [G[u][v].get('colour', default_colour) for u, v in G.edges()]
-    weights = [G[u][v].get('weight', 1) for u, v in G.edges()]
+    weights = [G[u][v].get('weight', 0) for u, v in G.edges()]
     node_colour = [node_colour.get(u, default_colour) for u in G]
 
     edge_labels = {}
@@ -93,7 +94,9 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentag
         for u, v in G.edges():
             weight = G[u][v].get('weight', 0)
             if weight != 0:
-                edge_labels[(u, v)] = '{}%'.format((weight * 100) / num_paths)
+                edge_labels[(u, v)] = '{0:.2f}%'.format((weight * 100) / num_paths)
+    for i in range(len(weights)):
+        weights[i] = (weights[i] / num_paths) * max_width if weights[i] != 0 else 1
 
     nx.draw(G, pos=pos, node_color=node_colour, edge_color=edge_colour, width=weights, with_labels=True, node_size=2500)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
