@@ -1,33 +1,38 @@
-from typing import List
-
 import matplotlib.pyplot as plt
 import networkx as nx
 
 import data_plot
+import useful
 from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
 
 
-def mutations_simulation() -> Simulation:
-    gen = Generator()
-    rates = {tuple('abc'): (10.0, 9.), tuple('Abc'): (10.0, 7.), tuple('ABc'): (10.0, 6.), tuple('ABC'): (10.0, 5.)}
+def mutations_simulation():
+    gen = Generator(prints=True)
+    sim = gen.config_file('parameters/two_paths_ABC.json')
 
-    sim = gen.parameters(tuple('abc'), [tuple('ABC'), tuple('ABD')], rates=rates, size=10000, wildtype_size=10000,
-                         default_rate=(10.0, 9.))
+    # data_plot.network(sim, nx)
+    # plt.show()
 
-    # for t in sim.get_types:
+    # for t in sim.get_types():
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
     sim.run(10.)
 
-    return sim
+    ls = sim.wildtype.check_mutation.keys()
+
+    print([str(t) for t in ls])
+    print([sim.wildtype.check_mutation[t] for t in ls])
+    #
+    # data_plot.network_with_dominant(sim, nx)
+    # plt.show()
 
 
 def display_simulation(sim: Simulation):
     # data_plot.stacked_plot(sim.get_types(), sim.get_tmax(), sim.get_pop_max(), plt)
     # plt.figure()
-    # data_plot.line_plot(sim.get_types(), sim.get_tmax(), sim.get_pop_max(), plt)
+    # data_plot.line_plot(sim, plt)
     # plt.figure()
     data_plot.network_with_dominant(sim, nx)
     # data_plot.network(sim, nx)
@@ -50,10 +55,12 @@ def one_type_exp():
     plt.show()
 
 
-def graph_multiple_sims(paths: List[List[Type]]):
+def graph_multiple_sims():
     gen = Generator()
+    sim = gen.config_file('parameters/two_paths_ABC_D.json')
 
-    sim = gen.config_file('parameters/two_paths.json')
+    paths = useful.load_paths('data/', 'two_paths')
+
     # data_plot.network(sim)
     G = data_plot.network_with_percentages(sim, paths, nx)
     plt.show()
@@ -76,26 +83,4 @@ def check_doubling_time():
 
 
 if __name__ == '__main__':
-    check_doubling_time()
-
-# sim = mutations_simulation()
-# save_simulation(sim, '10.0_ABC_D_3')
-
-# sim = load_simulation('10.0_ABC_D_3')
-# display_simulation(sim)
-
-# mutation = Generator.Mutation
-# mutation_rates = {
-#     mutation(('a', 'b'), ('a', 'b')): 0.998,
-#
-#     mutation(('a', 'B'), ('A', 'B')): 0.01,
-#     mutation(('a', 'B'), ('a', 'b')): 0.,
-#
-#     mutation(('A', 'b'), ('a', 'b')): 0.,
-#     mutation(('A', 'b'), ('A', 'B')): 0.01,
-#
-#     mutation(('A', 'B'), ('a', 'B')): 0.,
-#     mutation(('A', 'B'), ('A', 'b')): 0.,
-#     mutation(('A', 'B'), ('A', 'B')): 1.0,
-# }
-# sim = Generator.parameters(('a', 'b'), ('A', 'B'), rates=rates, mutation_rates=mutation_rates)
+    mutations_simulation()
