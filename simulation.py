@@ -116,7 +116,7 @@ class Simulation:
 
     @property
     def __time_nothing(self) -> float:
-        # return -1.0 * np.log(np.random.uniform()) / self.probability_total
+        # return -1.0 * np.log(1.0 - np.random.uniform()) / self.probability_total
         return random.expovariate(self.probability_total)
 
     def __choose_event_any(self) -> (Type, Event):
