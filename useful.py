@@ -32,8 +32,13 @@ def load_path(name: str) -> List[Type]:
 def load_paths(directory: str, part_name: str) -> List[List[Type]]:
     files = [f for f in listdir(directory) if isfile(join(directory, f)) and part_name in f]
 
-    paths = []
-    for file_name in files:
-        paths.append(load_path(directory + file_name))
+    if len(files) > 1:
+        print('Too many files found')
+        return []
 
-    return paths
+    print(directory + files[0])
+
+    with open(directory + files[0], 'rb') as f:
+        p = pickle.load(f)
+
+    return p
