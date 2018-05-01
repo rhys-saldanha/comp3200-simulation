@@ -54,7 +54,7 @@ class Type:
 
     def sim_init(self):
         # Things to do once the type object is passed to the Simulation
-        mutations = set([m for m, _ in self.mutations])
+        mutations = set([m for m, _ in self.mutations if m != self])
         relations = set(self.parents + self.children)
         all_types = mutations | relations
         if len(mutations) < len(all_types):
