@@ -184,6 +184,10 @@ class Simulation:
             for mutant_type, p in sim_type.mutations:
                 cloned_mutant = cloned_types[cloned_types.index(mutant_type)]
                 cloned_type.add_mutation(cloned_mutant, p)
+            for parent_type in sim_type.parents:
+                cloned_type.add_parent(cloned_types[cloned_types.index(parent_type)])
+            for child_type in sim_type.children:
+                cloned_type.add_child(cloned_types[cloned_types.index(child_type)])
 
         cloned_wildtype = cloned_types[cloned_types.index(self.wildtype)]
         return Simulation(*cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
