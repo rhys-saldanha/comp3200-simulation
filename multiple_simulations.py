@@ -1,6 +1,7 @@
 import functools
 import os
 import pickle
+import time
 from multiprocessing import Pool, cpu_count
 from typing import List
 
@@ -9,7 +10,7 @@ from simulation_generator import Generator
 from type import Type
 
 PARAMETERS = 'two_paths_ABC'
-SIM_NUM = 30
+SIM_NUM = 100
 TIME = 10.0
 PRINT = False
 
@@ -42,13 +43,17 @@ if __name__ == '__main__':
     # s_dup.run(TIME)
     # data_plot.line_plot(s_dup, plt)
     # plt.show()
-
-    with Pool(processes=cpu_count() - 1) as pool:
+    print('Starting at {}'.format(time.strftime("%Y-%m-%d %H:%M:%S")))
+    t0 = time.time()
+    with Pool(processes=cpu_count() - 1, maxtasksperchild=1) as pool:
         simulations = [PARAMETERS + '_{}'.format(i) for i in range(SIM_NUM)]
 
         f = functools.partial(dominant_path, simulation)
 
         result = pool.map(f, simulations)
+
+    print('Finished simulations at {}'.format(time.strftime("%Y-%m-%d %H:%M:%S")))
+    print('Took {}s'.format(time.time() - t0))
 
     with open('data/{}.sim'.format(PARAMETERS), 'wb') as f_sim:
         pickle.dump(result, f_sim, -1)
