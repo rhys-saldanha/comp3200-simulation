@@ -59,7 +59,7 @@ def graph_multiple_sims():
     gen = Generator()
     sim = gen.config_file('parameters/two_paths_ABC.json')
 
-    paths = useful.load_paths('data/', 'two_paths_ABC_old.sim')
+    paths = useful.load_paths('data/', 'two_paths_ABC.sim')
 
     # data_plot.network(sim)
     G = data_plot.network_with_percentages(sim, paths, nx)
