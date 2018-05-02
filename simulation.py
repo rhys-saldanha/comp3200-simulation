@@ -173,6 +173,12 @@ class Simulation:
     def get_history(self, t: Type) -> List[Tuple[int, float]]:
         return self.__history[t]
 
+    def get_times(self, t: Type) -> List[float]:
+        return list(list(zip(*self.__history[t]))[1])
+
+    def get_sizes(self, t: Type) -> List[float]:
+        return list(list(zip(*self.__history[t]))[0])
+
     def check_history(self) -> bool:
         return self.__save_history
 
