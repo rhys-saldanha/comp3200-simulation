@@ -145,7 +145,7 @@ class Type:
         return hash(self.name)
 
     def __str__(self):
-        return '{}|{},{}'.format(self.name, *self.rates.values(), self.size)
+        return '{}|{}'.format(self.name, self.rates[Event.DEATH], self.size)
 
     @staticmethod
     def _calc_mean(sum, size, n):
@@ -164,6 +164,6 @@ class Type:
         self.parents.append(p)
 
     def clone(self) -> 'Type':
-        t = Type(self.name, self.initial_size, *self.rates.values())
+        t = Type(self.name, self.initial_size, self.rates[Event.BIRTH], self.rates[Event.DEATH])
         t.pos = self.pos
         return t
