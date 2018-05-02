@@ -37,6 +37,7 @@ class Simulation:
         self.probability: Dict[Event, float] = {Event.BIRTH: sum([t.probability(Event.BIRTH) for t in self.__types]),
                                                 Event.DEATH: sum([t.probability(Event.DEATH) for t in self.__types])}
         self.probability_total = sum(self.probability.values())
+        # self.r_total = sum([sum([t.probability(e) * (1.0 - (t.size / self.__pop_max)) for e in [Event.BIRTH, Event.DEATH]]) for t in self.__types])
 
     def init_types(self):
         for t in self.__types:
@@ -100,6 +101,7 @@ class Simulation:
         s = 0.0
         p_birth = 0.0
         p_death = 0.0
+        # r_total = 0.0
 
         for t in self.__types:
             update = t.update(Event.NOTHING, self.__time)
@@ -107,17 +109,21 @@ class Simulation:
                 self.__history[t].append((update, self.__time))
             s += update
             p_birth += t.probability(Event.BIRTH)
+            # r_total += t.probability(Event.BIRTH) * (1.0 - (update / self.__pop_max))
             p_death += t.probability(Event.DEATH)
+            # r_total += t.probability(Event.DEATH) * (1.0 - (update / self.__pop_max))
 
         self.__size = s
         self.probability[Event.BIRTH] = p_birth
         self.probability[Event.DEATH] = p_death
         self.probability_total = p_birth + p_death
+        # self.r_total = r_total
 
     @property
     def __time_nothing(self) -> float:
         # return -1.0 * np.log(1.0 - np.random.uniform()) / self.probability_total
         return random.expovariate(self.probability_total)
+        # return random.expovariate(self.r_total) if self.r_total != 0 else 0.00001
 
     def __choose_event_any(self) -> (Type, Event):
         if self.probability_total == 0:
