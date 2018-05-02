@@ -13,15 +13,7 @@ dominant_colour = 'r'
 
 
 def line_plot(sim: Simulation, plt=plt, do_reduce=True):
-    if not sim.check_history():
-        print('This simulation has no history')
-        return
-
-    plt.title("Plot of type size over time")
-    plt.xlabel("time")
-    plt.ylabel("Number of type")
-    num_points = len(sim.get_history(sim.get_types()[0]))
-    reduce = max(1, int(num_points / resolution)) if do_reduce else 1
+    reduce = __plot_setup(sim, plt, do_reduce)
 
     legend_list = []
     for e in sim.get_types():
@@ -29,26 +21,30 @@ def line_plot(sim: Simulation, plt=plt, do_reduce=True):
         plt.scatter(t, v, marker='.')
         legend_list.append('{}'.format(e.full_name))
     plt.legend(legend_list, loc='upper left')
-    plt.ylim((0, sim.get_pop_max()))
-    plt.xlim((0, sim.get_tmax()))
 
 
-def stacked_plot(types: List[Type], tmax: float, size_max: int, plt=plt):
-    plt.xlabel("time")
-    plt.ylabel("Number of type")
+def stacked_plot(sim: Simulation, plt=plt, do_reduce=True):
+    reduce = __plot_setup(sim, plt, do_reduce)
 
-    num_points = len(types[0].history)
-    # reduce = int(num_points / (resolution * tmax))
-    reduce = int(num_points / (resolution))
-
-    times = types[0].get_times[::reduce]
-    histories = [t.get_sizes[::reduce] for t in types]
-    labels = list(map(str, types))
+    times = sim.get_times(sim.wildtype)[::reduce]
+    histories = [sim.get_sizes(t)[::reduce] for t in sim.get_types()]
+    labels = list(map(str, sim.get_types()))
 
     plt.stackplot(times, histories, labels=labels)
     plt.legend(loc='lower right')
-    plt.ylim((0, size_max))
-    plt.xlim((0, tmax))
+
+
+def __plot_setup(sim: Simulation, plt=plt, do_reduce=True):
+    if not sim.check_history():
+        raise Exception('This simulation has no history')
+
+    plt.title("Plot of type size over time")
+    plt.xlabel("time")
+    plt.ylabel("Number of type")
+    plt.ylim((0, sim.get_pop_max()))
+    plt.xlim((0, sim.get_tmax()))
+    num_points = len(sim.get_history(sim.get_types()[0]))
+    return max(1, int(num_points / resolution)) if do_reduce else 1
 
 
 def network(sim: Simulation, nx=nx) -> nx.Graph:
@@ -98,7 +94,7 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentag
     for i in range(len(weights)):
         weights[i] = (weights[i] / num_paths) * max_width if weights[i] != 0 else 1
 
-    nx.draw(G, pos=pos, node_color=node_colour, edge_color=edge_colour, width=weights, with_labels=True, node_size=2500)
+    nx.draw(G, pos=pos, node_color=node_colour, edge_color=edge_colour, width=weights, with_labels=True)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
 
     return G
