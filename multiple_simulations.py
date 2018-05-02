@@ -9,7 +9,7 @@ from simulation import Simulation
 from simulation_generator import Generator
 from type import Type
 
-PARAMETERS = 'two_paths_ABC'
+PARAMETERS = 'two_paths_ABC_D_uneven'
 SIM_NUM = 100
 TIME = 10.0
 PRINT = False
