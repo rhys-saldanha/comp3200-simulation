@@ -9,24 +9,19 @@ from type import Type
 
 
 def mutations_simulation():
-    gen = Generator(prints=True)
-    sim = gen.config_file('parameters/two_paths_ABC.json')
+    gen = Generator(prints=True, history=True)
+    sim = gen.config_file('parameters/two_paths_ABC_D_uneven.json')
 
-    # data_plot.network(sim, nx)
-    # plt.show()
+    data_plot.network(sim, nx)
+    plt.show()
 
     # for t in sim.get_types():
     #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
     sim.run(10.)
-
-    ls = sim.wildtype.check_mutation.keys()
-
-    print([str(t) for t in ls])
-    print([sim.wildtype.check_mutation[t] for t in ls])
-    #
+    data_plot.stacked_plot(sim, plt)
     # data_plot.network_with_dominant(sim, nx)
-    # plt.show()
+    plt.show()
 
 
 def display_simulation(sim: Simulation):
@@ -55,14 +50,19 @@ def one_type_exp():
     plt.show()
 
 
-def graph_multiple_sims():
+def graph_multiple_sims(*files: str):
     gen = Generator()
-    sim = gen.config_file('parameters/two_paths_ABC.json')
 
-    paths = useful.load_paths('data/', 'two_paths_ABC.sim')
+    for f in files[:-1]:
+        sim = gen.config_file('parameters/{}'.format(f))
+        path = useful.load_paths('data/', f + '.sim')
+        data_plot.network_with_percentages(sim, path, nx)
+        plt.figure()
 
-    # data_plot.network(sim)
-    G = data_plot.network_with_percentages(sim, paths, nx)
+    f = files[-1]
+    sim = gen.config_file('parameters/{}'.format(f))
+    path = useful.load_paths('data/', f + '.sim')
+    data_plot.network_with_percentages(sim, path, nx)
     plt.show()
 
     # d = json_graph.node_link_data(G)
@@ -72,15 +72,19 @@ def graph_multiple_sims():
 
 def check_doubling_time():
     # divide and times sizes by 10 to show doubling time is consistent
-    a = Type('A', 1000, 4., 2.)
+    a = Type('A', 500, 4., 2.)
+    b = (Type('B', 2000 - a.size, 4., 3.))
     # stop point reduction if small simulation
-    s = Simulation(a, max=20000, history=True)
+    s = Simulation(a, b, max=2000, history=True, prints=True)
 
-    s.run(3.0)
+    s.run(10.0)
 
     data_plot.line_plot(s, plt)
+    plt.figure()
+    data_plot.stacked_plot(s, plt)
     plt.show()
 
 
 if __name__ == '__main__':
-    graph_multiple_sims()
+    # graph_multiple_sims('two_paths_ABC', 'two_paths_ABC_D')
+    mutations_simulation()
