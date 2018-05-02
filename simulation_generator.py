@@ -75,7 +75,8 @@ class Generator:
         finals = []
         for i in range(0, len(wildtype) + 1):
             finals = sources
-            for s, source in enumerate(sources):
+            sorted_sources = sorted(list(sources), key=lambda x: ''.join(x), reverse=True)
+            for s, source in enumerate(sorted_sources):
                 types[source].pos = (i, s / len(sources))
 
                 targets = self.partial_match(wildtype, source, all_seq, i + 1) - used_sources
