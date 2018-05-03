@@ -63,7 +63,7 @@ def run_multiple_simulations(config: str):
     print('Finished simulations at {}'.format(time.strftime("%Y-%m-%d %H:%M:%S")))
     print('Took {}s'.format(time.time() - t0))
 
-    with open('data/{}.sim'.format(config), 'wb') as f_sim:
+    with open('data/{}.sim'.format(config.split('/')[-1]), 'wb') as f_sim:
         pickle.dump(result, f_sim, -1)
 
 
