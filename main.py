@@ -50,18 +50,18 @@ def one_type_exp():
     plt.show()
 
 
-def graph_multiple_sims(*files: str):
+def graph_multiple_sims(parameters: str, data: str):
     gen = Generator()
 
-    for f in files[:-1]:
-        sim = gen.config_file('parameters/{}'.format(f))
-        path = useful.load_paths('data/', f + '.sim')
-        data_plot.network_with_percentages(sim, path, nx)
-        plt.figure()
-
-    f = files[-1]
-    sim = gen.config_file('parameters/{}'.format(f))
-    path = useful.load_paths('data/', f + '.sim')
+    # for f in files[:-1]:
+    #     sim = gen.config_file(parameters)
+    #     path = useful.load_paths('data/', f + '.sim')
+    #     data_plot.network_with_percentages(sim, path, nx)
+    #     plt.figure()
+    #
+    # f = files[-1]
+    sim = gen.config_file(parameters)
+    path = useful.load_paths(*data.split('/'))
     data_plot.network_with_percentages(sim, path, nx)
     plt.show()
 
@@ -86,5 +86,6 @@ def check_doubling_time():
 
 
 if __name__ == '__main__':
-    # graph_multiple_sims('two_paths_ABC', 'two_paths_ABC_D')
-    mutations_simulation()
+    graph_multiple_sims('parameters/two_paths_ABC_D_more_separate_skewed_1_0.json',
+                        'data/two_paths_ABC_D_more_separate_skewed_1_0.sim')
+    # mutations_simulation()
