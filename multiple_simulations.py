@@ -53,7 +53,7 @@ def run_multiple_simulations(config: str):
     print('Starting at {}'.format(time.strftime("%Y-%m-%d %H:%M:%S")))
     t0 = time.time()
 
-    with Pool(maxtasksperchild=2) as pool:
+    with Pool() as pool:
         simulations = [config + '_{}'.format(i) for i in range(SIM_NUM)]
 
         f = functools.partial(dominant_path, s)
