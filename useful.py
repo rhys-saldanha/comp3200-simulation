@@ -32,6 +32,9 @@ def load_path(name: str) -> List[Type]:
 def load_paths(directory: str, part_name: str) -> List[List[Type]]:
     files = [f for f in listdir(directory) if isfile(join(directory, f)) and part_name in f]
 
+    if directory[-1] != '/':
+        directory += '/'
+
     if len(files) > 1:
         print('Too many files found')
         return []
