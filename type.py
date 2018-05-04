@@ -24,8 +24,6 @@ class Type:
             raise ValueError('Birth rate must be positive')
         if death_rate < 0:
             raise ValueError('Death rate must be positive')
-        if death_rate == 0:
-            raise ValueError('Death rate must be non-zero')
 
         self.name = name
         self.rates = {Event.BIRTH: birth_rate, Event.DEATH: death_rate}

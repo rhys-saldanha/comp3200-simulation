@@ -86,10 +86,12 @@ class Simulation:
         if op == Event.BIRTH and self.__size >= self.__pop_max:
             d = self.__choose_event(Event.DEATH)
             # Only update with death if types are different, otherwise they cancel
-            if d != t:
+            if d != t and d is not None:
                 d.update(Event.DEATH, self.__time)
                 t.update(Event.BIRTH, self.__time)
-            # Update with nothing happens in final for loop
+            # Update with nothing happens in final for loop if d == t
+            # If d is None, there are no types that can die (all types have 0 death rate?)
+            #  therefore just plateau the population
 
         # Check we have a type to update
         # as all types may have died out
