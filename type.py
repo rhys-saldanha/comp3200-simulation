@@ -123,7 +123,7 @@ class Type:
         for e, p in self.mutations:
             total += p
             # If argument is within the new total, we've found the mutation it applies to
-            if r <= total:
+            if r < total:
                 # A mutation event cannot itself mutate
                 return e.update(Event.BIRTH, time, False)
         assert False, 'Shouldn\'t get here'

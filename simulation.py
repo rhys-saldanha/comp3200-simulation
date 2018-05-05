@@ -137,12 +137,12 @@ class Simulation:
             # n = np.random.uniform(high=self.probability[s])
             n = random.random() * self.probability[s]
 
-        t = 0.0
+        total = 0.0
         # Loop through types
         for e in self.__types:
-            t += e.probability(s)
+            total += e.probability(s)
             # If argument is within the new total, we've found the operation it applies to
-            if n < t:
+            if n < total:
                 return e
         # Argument was outside of possible values
         # raise ValueError
