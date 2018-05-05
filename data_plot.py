@@ -18,7 +18,7 @@ def line_plot(sim: Simulation, plt=plt, do_reduce=True):
     legend_list = []
     for e in sim.get_types():
         v, t = list(zip(*sim.get_history(e)[::reduce]))
-        plt.scatter(t, v, marker='.')
+        plt.plot(t, v)
         legend_list.append('{}'.format(e.full_name))
     plt.legend(legend_list, loc='upper left')
 
