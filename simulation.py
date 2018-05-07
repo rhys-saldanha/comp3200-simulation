@@ -161,12 +161,14 @@ class Simulation:
         path: List[Type] = []
         # Find largest type at end of simulation
         t = max(self.get_types(), key=lambda x: x.size)
-        # Trace back to wildtype through largest parent
-        while t != self.wildtype:
-            path.append(t)
-            t = max(t.parents, key=lambda x: x.max_size)
-        # At wildtype, still need to add it to the path
         path.append(t)
+        # Trace back to wildtype through largest parent or child
+        while t != self.wildtype:
+            poss_ts = set(t.parents) | set(t.children)
+            # Dominant path cannot go through the same node twice
+            poss_ts -= set(path)
+            t = max(poss_ts, key=lambda x: x.max_size)
+            path.append(t)
         return path
 
     def set_history(self, b: bool):
