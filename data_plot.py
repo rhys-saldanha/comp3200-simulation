@@ -53,14 +53,15 @@ def __plot_setup(sim: Simulation, plt=plt, do_reduce=True):
 
 
 def network(sim: Simulation, nx=nx, plt=plt) -> nx.Graph:
-    return network_with_percentages(sim, [], percentages=False, nx=nx, plt=plt)
+    return network_with_percentages(sim, [], base_arrows=True, percentages=False, nx=nx, plt=plt)
 
 
 def network_with_dominant(sim: Simulation, path: List[Type], nx=nx, plt=plt) -> nx.Graph:
     return network_with_percentages(sim, [path], percentages=False, nx=nx, plt=plt)
 
 
-def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentages=True, nx=nx, plt=plt) -> nx.Graph:
+def network_with_percentages(sim: Simulation, paths: List[List[Type]], base_arrows=False, percentages=True, nx=nx,
+                             plt=plt) -> nx.Graph:
     G = nx.DiGraph()
     G.add_nodes_from([t for t in sim.get_types()])
     G.add_edges_from(list(itertools.chain(*[[(t, c) for c in t.children] for t in sim.get_types()])))
@@ -99,7 +100,7 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], percentag
         weights[i] = (weights[i] / num_paths) * max_width if weights[i] != 0 else 1
 
     # Draw base graph with no arrows and labels
-    nx.draw(G, pos, node_color=default_edge_colour, edge_color=default_edge_colour, with_labels=True, arrows=False)
+    nx.draw(G, pos, node_color=default_edge_colour, edge_color=default_edge_colour, with_labels=True, arrows=base_arrows)
     # Draw dominant nodes with correct colour and slightly bigger
     nx.draw_networkx_nodes(G, pos, nodelist=dominant_nodes, node_color=dominant_node_colour, node_size=500)
     # Draw dominant arrow edges without weight change
