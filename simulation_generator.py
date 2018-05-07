@@ -16,7 +16,7 @@ class ParameterError(Exception):
     def __init__(self, s):
         self.message = s
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Parameter error: ' + self.message
 
 
@@ -79,7 +79,7 @@ class Generator:
             for s, source in enumerate(sorted_sources):
                 types[source].pos = (i, s / len(sources))
 
-                targets = self.partial_match(wildtype, source, all_seq, i + 1) - used_sources
+                targets = self.partial_match(source, all_seq) - used_sources
 
                 for target in targets:
                     types[source].add_mutation(types[target], mutation_rates.get(self.Mutation(source, target),
@@ -92,7 +92,7 @@ class Generator:
                                                                                  default_mutation_rate))
 
             used_sources |= sources
-            sources = self.partial_match_list(wildtype, sources, all_seq, i + 1) - used_sources
+            sources = self.partial_match_list(sources, all_seq) - used_sources
 
         return Simulation(*types.values(), max=size, wildtype=types[wildtype],
                           finals=[types[t] for t in finals], history=self.__save_history, prints=self.__prints)
@@ -101,22 +101,23 @@ class Generator:
     def all_seq(wildtype, *mutated) -> List:
         # Given the wildtype and fully mutated strains as lists,
         # create all intermediate stages
-        return Generator.f7(itertools.product(*zip(wildtype, *mutated)))
+        return Generator.remove_duplicates(itertools.product(*zip(wildtype, *mutated)))
 
     @staticmethod
-    def partial_match_list(wildtype, sources, all_seq, l) -> Set:
+    def partial_match_list(sources, all_seq) -> Set:
         # partial match for every source, chain together results, remove repeats
         return set(
-            itertools.chain.from_iterable(map(lambda x: Generator.partial_match(wildtype, x, all_seq, l), sources)))
+            itertools.chain.from_iterable(map(lambda x: Generator.partial_match(x, all_seq), sources)))
 
     @staticmethod
-    def partial_match(wildtype, source, all_seq, l) -> Set:
+    def partial_match(source, all_seq) -> Set:
         return set([target for target in all_seq if
                     # reduce(lambda x, y: x + 1 if y[0] != y[1] else x, zip(wildtype, target), 0) == l and
                     reduce(lambda x, y: x + 1 if y[0] != y[1] else x, zip(source, target), 0) == 1])
 
     @staticmethod
-    def f7(seq):
+    def remove_duplicates(seq) -> List:
+        # Preserve list order whilst removing duplicates
         seen = set()
         seen_add = seen.add
         return [x for x in seq if not (x in seen or seen_add(x))]
