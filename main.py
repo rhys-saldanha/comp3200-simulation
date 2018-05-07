@@ -10,7 +10,7 @@ from type import Type
 
 def mutations_simulation():
     gen = Generator(prints=True, history=True)
-    sim = gen.config_file('parameters/two_paths_ABC_D_uneven.json')
+    sim = gen.config_file('config/two_paths_ABC_D_uneven.json')
 
     data_plot.network(sim, nx)
     plt.show()
@@ -86,6 +86,6 @@ def check_doubling_time():
 
 
 if __name__ == '__main__':
-    graph_multiple_sims('parameters/two_paths_ABC_D_more_separate_skewed_1_0.json',
-                        'data/two_paths_ABC_D_more_separate_skewed_1_0.sim')
+    graph_multiple_sims('config/two_paths_ABC_D_more_separate_skewed_1_5.json',
+                        'data/two_paths_ABC_D_more_separate_skewed_1_5.sim')
     # mutations_simulation()

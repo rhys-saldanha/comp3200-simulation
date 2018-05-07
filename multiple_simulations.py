@@ -36,7 +36,7 @@ def run_multiple_simulations(config: str):
     g = Generator(prints=PRINT)
     s = g.config_file(config)
 
-    # Showing graphs messes with threading, only use to test simulation parameters
+    # Showing graphs messes with threading, only use to test simulation config
     # data_plot.network(s, nx)
     # plt.show()
     # return
@@ -75,4 +75,4 @@ if __name__ == '__main__':
 
     [run_multiple_simulations(p) for p in PARAMETERS]
 
-# python multiple_simulations.py -c parameters/abc_ABC_D.json -t 1.0 -v true
+# python multiple_simulations.py -c config/abc_ABC_D.json -t 1.0 -v true

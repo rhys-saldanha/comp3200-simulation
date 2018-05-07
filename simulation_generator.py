@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     gen = Generator()
 
-    sim = gen.config_file('parameters/abc_ABC_D.json')
+    sim = gen.config_file('config/abc_ABC_D.json')
     # print([str(t) for t in sim.get_types()])
     network(sim, nx)
     plt.show()
