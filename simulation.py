@@ -11,7 +11,7 @@ class Simulation:
     population sizes, taking into account their respective birth and death rates.
     """
 
-    def __init__(self, *types: Type, **kwargs):
+    def __init__(self, types: List[Type], **kwargs):
         """
         Given a list of `Type`s, this object will run a simulation for a
         given amount of time
@@ -187,7 +187,7 @@ class Simulation:
         return self.__save_history
 
     def clone(self) -> 'Simulation':
-        cloned_types = [t.clone() for t in self.__types]
+        cloned_types: List[Type] = [t.clone() for t in self.__types]
 
         for sim_type in self.__types:
             cloned_type = cloned_types[cloned_types.index(sim_type)]
@@ -200,4 +200,4 @@ class Simulation:
                 cloned_type.add_child(cloned_types[cloned_types.index(child_type)])
 
         cloned_wildtype = cloned_types[cloned_types.index(self.wildtype)]
-        return Simulation(*cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
+        return Simulation(cloned_types, max=self.__pop_max, wildtype=cloned_wildtype)
