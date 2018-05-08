@@ -31,25 +31,29 @@ class Generator:
         if '.json' != filename[-5:]:
             filename += '.json'
         with open(filename, 'r') as f:
-            data = json.load(f)
+            config = json.load(f)
 
-        data['wildtype'] = tuple(data['wildtype'])
-        for i, m in enumerate(data['mutated']):
-            data['mutated'][i] = tuple(m)
+        config['wildtype'] = tuple(config['wildtype'])
+        for i, m in enumerate(config['mutated']):
+            config['mutated'][i] = tuple(m)
 
-        ks = list(data['rates'].keys())
+        # TODO turn config['mutation_rates'] mutations to Mutation objects
+
+        ks = list(config['rates'].keys())
         for k in ks:
-            v = data['rates'][k]
-            data['rates'][tuple(k)] = tuple(v)
-            del data['rates'][k]
-        data['default_rate'] = tuple(data['default_rate'])
-        return self.parameters(**data)
+            v = config['rates'][k]
+            config['rates'][tuple(k)] = tuple(v)
+            del config['rates'][k]
 
-    def parameters(self, wildtype: Tuple, mutated: List[Tuple],
-                   rates: Dict[Sequence[str], Tuple[float, float]] = False,
+        config['default_rate'] = tuple(config['default_rate'])
+        return self.parameters(**config)
+
+    def parameters(self, wildtype: Tuple[str], mutated: List[Tuple[str]],
+                   rates: Dict[Tuple[str], Tuple[float, float]] = False,
                    default_rate: Tuple[float, float] = (0.0, 1.0),
                    mutation_rates: Dict[Mutation, float] = False, default_mutation_rate: float = 0.001,
                    wildtype_size: int = None, size: int = 200) -> Simulation:
+
         for m in mutated:
             if len(wildtype) != len(m):
                 raise ParameterError('wildtype and mutated must have the same number of genes')
@@ -60,7 +64,7 @@ class Generator:
         if not wildtype_size:
             wildtype_size = size
 
-        all_seq = self.all_seq(wildtype, *mutated)
+        all_seq = self.all_seq(wildtype, mutated)
 
         types: Dict[Tuple, Type] = dict()
 
@@ -85,21 +89,21 @@ class Generator:
                     types[source].add_mutation(types[target], mutation_rates.get(self.Mutation(source, target),
                                                                                  default_mutation_rate))
 
-                    types[source].add_child(types[target])
-                    types[target].add_parent(types[source])
-
                     types[target].add_mutation(types[source], mutation_rates.get(self.Mutation(target, source),
                                                                                  default_mutation_rate))
+
+                    types[source].add_child(types[target])
+                    types[target].add_parent(types[source])
 
             used_sources |= sources
             sources = self.partial_match_list(sources, all_seq) - used_sources
 
-        return Simulation(*types.values(), max=size, wildtype=types[wildtype],
+        return Simulation(list(types.values()), max=size, wildtype=types[wildtype],
                           finals=[types[t] for t in finals], history=self.__save_history, prints=self.__prints)
 
     @staticmethod
-    def all_seq(wildtype, *mutated) -> List:
-        # Given the wildtype and fully mutated strains as lists,
+    def all_seq(wildtype: Tuple[str], mutated: List[Tuple[str]]) -> List:
+        # Given the wildtype and list of fully mutated types,
         # create all intermediate stages
         return Generator.remove_duplicates(itertools.product(*zip(wildtype, *mutated)))
 
@@ -124,17 +128,17 @@ class Generator:
 
 
 if __name__ == '__main__':
-    # sim = Generator.parameters(('0', '0', '0', '0', '0', '0'), ('1', '1', '1', '1', '1', '1'),
-    #                            ('1', '1', '1', '1', '2', '1'))
 
-    # sim = Generator.parameters(tuple('abc'), tuple('ABC'), tuple('ABD'), size=10000, wildtype_size=10000,
-    #                            default_rate=(10.0, 9.))
+    gen = Generator()
 
-    # sim = Generator.parameters(('a', 'b', 'c', 'd', 'e', 'f'), ('A', 'B', 'C', 'D', 'E1', 'F'),
-    #                            ('A', 'B', 'C', 'D', 'E2', 'F'))
+    # sim = gen.config_file('config/abc_ABC_D.json')
 
-    # for t in sim.get_types:
-    #     print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
+    sim = gen.parameters(tuple('0'), [tuple('1'), tuple('2'), tuple('3')])
+
+    # print([str(t) for t in sim.get_types()])
+
+    for t in sim.get_types():
+        print('{}, {}'.format(str(t), list(map(lambda x: '{}: {}'.format(str(x[0]), x[1]), t.mutations))))
 
     # for t in sim.get_types():
     #     print('children: {}, {}'.format(t, list(map(str, t.children))))
@@ -143,12 +147,5 @@ if __name__ == '__main__':
     #
     # print('number of types: {}'.format(len(sim.get_types())))
 
-    # network(sim, nx)
-    # plt.show()
-
-    gen = Generator()
-
-    sim = gen.config_file('config/abc_ABC_D.json')
-    # print([str(t) for t in sim.get_types()])
     network(sim, nx)
     plt.show()
