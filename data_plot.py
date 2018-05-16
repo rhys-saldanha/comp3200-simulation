@@ -1,5 +1,6 @@
 import itertools
-from typing import List, Tuple, Set
+from collections import defaultdict
+from typing import List, Tuple, Set, Dict
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -17,8 +18,9 @@ dominant_edge_arrow_colour = 'white'
 dominant_edge_bar_colour = 'red'
 
 
-def line_plot(sim: Simulation, plt=plt, do_reduce=True):
+def line_plot(sim: Simulation, plt=plt, do_reduce=True, title='Plot of type size over time'):
     reduce = __plot_setup(sim, plt, do_reduce)
+    plt.title(title)
 
     legend_list = []
     for e in sim.get_types():
@@ -28,8 +30,9 @@ def line_plot(sim: Simulation, plt=plt, do_reduce=True):
     plt.legend(legend_list, loc='upper left')
 
 
-def stacked_plot(sim: Simulation, plt=plt, do_reduce=True):
+def stacked_plot(sim: Simulation, plt=plt, do_reduce=True, title='Plot of type size over time'):
     reduce = __plot_setup(sim, plt, do_reduce)
+    plt.title(title)
 
     times = sim.get_times(sim.wildtype)[::reduce]
     histories = [sim.get_sizes(t)[::reduce] for t in sim.get_types()]
@@ -43,10 +46,9 @@ def __plot_setup(sim: Simulation, plt=plt, do_reduce=True):
     if not sim.check_history():
         raise Exception('This simulation has no history')
 
-    plt.title("Plot of type size over time")
     plt.xlabel("time")
     plt.ylabel("Number of type")
-    plt.ylim((0, sim.get_pop_max()))
+    plt.ylim((0, 1.1 * sim.get_pop_max()))
     plt.xlim((0, sim.get_tmax()))
     num_points = len(sim.get_history(sim.get_types()[0]))
     return max(1, int(num_points / resolution)) if do_reduce else 1
@@ -72,14 +74,12 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], base_arro
 
     dominant_nodes: Set[Type] = set()
     dominant_arcs: Set[Tuple[Type, Type]] = set()
+    weights: Dict[Tuple[Type, Type], float] = defaultdict(lambda: 0)
 
     for p in paths:
         for i, t in enumerate(p[:-1]):
             t_next = p[i + 1]
-            if 'weight' in G[t][t_next]:
-                G[t_next][t]['weight'] += 1
-            else:
-                G[t_next][t]['weight'] = 1
+            weights[(t_next, t)] += 1
             dominant_arcs.add((t_next, t))
         for t in p:
             dominant_nodes.add(t)
@@ -88,19 +88,21 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], base_arro
     for t in sim.get_types():
         pos[t] = t.pos
 
-    weights = [G[u][v].get('weight', 0) for u, v in dominant_arcs]
+    # weights = [G[u][v].get('weight', 0) for u, v in dominant_arcs]
 
     edge_labels = {}
-    if percentages:
-        for u, v in dominant_arcs:
-            weight = G[u][v].get('weight', 0)
-            if weight != 0:
-                edge_labels[(u, v)] = '{0:.2f}%'.format((weight * 100) / num_paths)
-    for i in range(len(weights)):
-        weights[i] = (weights[i] / num_paths) * max_width if weights[i] != 0 else 1
+    widths = []
+    for a in dominant_arcs:
+        if percentages:
+            # weight = G[u][v].get('weight', 0)
+            weight = weights[a]
+            edge_labels[a] = '{0:.2f}%'.format((weight * 100) / num_paths)
+
+        widths.append((weights[a] / num_paths) * max_width)
 
     # Draw base graph with no arrows and labels
-    nx.draw(G, pos, node_color=default_edge_colour, edge_color=default_edge_colour, with_labels=True, arrows=base_arrows)
+    nx.draw(G, pos, node_color=default_edge_colour, edge_color=default_edge_colour, with_labels=True,
+            arrows=base_arrows)
     # Draw dominant nodes with correct colour and slightly bigger
     nx.draw_networkx_nodes(G, pos, nodelist=dominant_nodes, node_color=dominant_node_colour, node_size=500)
     # Draw dominant arrow edges without weight change
@@ -108,7 +110,7 @@ def network_with_percentages(sim: Simulation, paths: List[List[Type]], base_arro
                            edge_color=dominant_edge_arrow_colour,
                            arrowstyle='-|>', node_size=500)
     # Draw background for dominant edges with weights to show percentages
-    nx.draw_networkx_edges(G, pos, edgelist=dominant_arcs, edge_color=dominant_edge_bar_colour, width=weights,
+    nx.draw_networkx_edges(G, pos, edgelist=dominant_arcs, edge_color=dominant_edge_bar_colour, width=widths,
                            arrows=False, node_size=500)
     # Draw edge labels
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)

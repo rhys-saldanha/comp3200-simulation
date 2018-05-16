@@ -29,19 +29,24 @@ def load_path(name: str) -> List[Type]:
         return p
 
 
-def load_paths(directory: str, part_name: str) -> List[List[Type]]:
-    files = [f for f in listdir(directory) if isfile(join(directory, f)) and part_name in f]
+def load_paths(name: str) -> List[List[Type]]:
+    if '.sim' != name[-4:]:
+        name += '.sim'
+    print('opening ' + name)
+    with open(name, 'rb') as f:
+        return pickle.load(f)
 
-    if directory[-1] != '/':
-        directory += '/'
+
+def load_paths_ambiguous(directory: str, part_name: str) -> List[List[Type]]:
+    files = [f for f in listdir(directory) if isfile(join(directory, f)) and part_name in f]
 
     if len(files) > 1:
         print('Too many files found')
         return []
 
-    print(directory + files[0])
+    print(join(directory, files[0]))
 
-    with open(directory + files[0], 'rb') as f:
+    with open(join(directory, files[0]), 'rb') as f:
         p = pickle.load(f)
 
     return p

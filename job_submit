@@ -1,6 +1,0 @@
-#!/bin/bash
-cd $PBS_O_WORKDIR
-module load conda
-source activate venv
-python multiple_simulations.py -c parameters/abc_ABC_D_with_backwards -t 10.0 -n 1
-source deactivate
